@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Esky;
 
-/** Shared view helpers for the two page scripts. */
+/** Shared view helpers for the page scripts. */
 final class Page
 {
     public static function e(?string $value): string
@@ -45,23 +45,5 @@ final class Page
 
         return $when->setTimezone(new \DateTimeZone(date_default_timezone_get()))
             ->format('Y-m-d H:i');
-    }
-
-    public static function error(string $message): never
-    {
-        http_response_code(500);
-        $safe = self::e($message);
-        echo <<<HTML
-        <!doctype html>
-        <html lang="en"><head><meta charset="utf-8">
-        <title>Esky — error</title>
-        <link rel="stylesheet" href="/style.css"></head>
-        <body><main class="wrap">
-        <h1>Something went wrong</h1>
-        <p class="error">{$safe}</p>
-        <p><a href="/">Back to the list</a></p>
-        </main></body></html>
-        HTML;
-        exit;
     }
 }
