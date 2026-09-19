@@ -69,16 +69,16 @@ $text = (string) ($memory['text'] ?? '');
 <?php else: ?>
     <h1><?= Page::e((string) ($memory['kind'] ?? 'memory')) ?></h1>
 
-    <div class="panes">
-        <section class="pane">
-            <h2>Markdown</h2>
-            <div class="body"><pre><?= Page::e($text) ?></pre></div>
-        </section>
-        <section class="pane">
-            <h2>HTML</h2>
-            <div class="body rendered"><?= Markdown::toHtml($text) ?></div>
-        </section>
-    </div>
+    <section class="viewer">
+        <input class="tab-state" type="radio" name="pane" id="pane-markdown" checked>
+        <input class="tab-state" type="radio" name="pane" id="pane-html">
+        <nav class="tabs">
+            <label for="pane-markdown">Markdown</label>
+            <label for="pane-html">HTML</label>
+        </nav>
+        <div class="body pane-markdown"><pre><?= Page::e($text) ?></pre></div>
+        <div class="body pane-html rendered"><?= Markdown::toHtml($text) ?></div>
+    </section>
 
     <table class="fields">
         <tr><th>uid</th><td><?= Page::e((string) $memory['uid']) ?></td></tr>
