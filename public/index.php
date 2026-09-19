@@ -56,8 +56,11 @@ try {
         ?>
         <li class="card">
             <a class="card-link" href="<?= Page::e($href) ?>">
-                <span class="kind"><?= Page::e((string) ($record['kind'] ?? '')) ?></span>
-                <time><?= Page::e(substr((string) ($record['updated_at'] ?? ''), 0, 10)) ?></time>
+                <span class="title"><?= Page::e(Page::heading($record)) ?></span>
+                <span class="card-meta">
+                    <span class="kind"><?= Page::e((string) ($record['kind'] ?? '')) ?></span>
+                    <time><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
+                </span>
             </a>
             <p class="excerpt"><?= Page::e(Page::preview((string) ($record['text'] ?? ''))) ?></p>
             <p class="tags">

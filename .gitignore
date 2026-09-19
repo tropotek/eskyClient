@@ -3,3 +3,4 @@
 /_notes/
 .idea/
 /.phpunit.result.cache
+/docker-compose-live.yml

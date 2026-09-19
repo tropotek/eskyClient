@@ -43,10 +43,11 @@ a { color: var(--accent); }
     background: var(--panel); border: 1px solid var(--line);
     border-radius: 8px; padding: 14px 16px;
 }
-.card-link { display: flex; justify-content: space-between; gap: 12px; text-decoration: none; }
-.card-link:hover .kind { text-decoration: underline; }
-.kind { font-weight: 600; color: var(--accent); }
-.card time { color: var(--muted); font-size: .8125rem; }
+.card-link { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; text-decoration: none; }
+.card-link:hover .title { text-decoration: underline; }
+.card .title { font-weight: 600; color: var(--accent); }
+.card-meta { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.card .kind, .card time { color: var(--muted); font-size: .8125rem; }
 .excerpt { margin: 8px 0 0; color: var(--text); }
 .tags { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .tag {

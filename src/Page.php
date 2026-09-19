@@ -18,6 +18,35 @@ final class Page
         return mb_strlen($flat) <= $length ? $flat : mb_substr($flat, 0, $length) . '…';
     }
 
+    /** A record's display label: its title, or the kind when it has none. */
+    public static function heading(array $record): string
+    {
+        $title = trim((string) ($record['title'] ?? ''));
+
+        return $title !== '' ? $title : (string) ($record['kind'] ?? 'memory');
+    }
+
+    /**
+     * esky stores ISO-8601 UTC instants; show them in the server's timezone
+     * to the minute, which is as precise as anything on these pages needs.
+     */
+    public static function stamp(?string $iso): string
+    {
+        $iso = trim((string) $iso);
+        if ($iso === '') {
+            return '';
+        }
+
+        try {
+            $when = new \DateTimeImmutable($iso);
+        } catch (\Exception) {
+            return $iso;
+        }
+
+        return $when->setTimezone(new \DateTimeZone(date_default_timezone_get()))
+            ->format('Y-m-d H:i');
+    }
+
     public static function error(string $message): never
     {
         http_response_code(500);
