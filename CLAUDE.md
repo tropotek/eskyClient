@@ -33,9 +33,16 @@ tool description costs context in every agent session. `Config` derives the REST
 base and the profile name from `ESKY_URL` so the two are configured once;
 `ESKY_API_URL` / `ESKY_PROFILE` override that.
 
-`Chart` renders inline SVG server-side. No JavaScript and no CDN: this is read on
-a LAN that need not have a route to the internet, and hover labels are native
-`<title>` elements for the same reason. Series colours are `--series-1…` in
+Bootstrap 5.3 supplies the layout and components, in its dark mode, vendored at
+`public/vendor/bootstrap.min.css`. No CDN and no Bootstrap JavaScript: this is
+read on a LAN that need not have a route to the internet. That rules out
+Bootstrap's tab and tooltip components, so the detail page's tabs are hidden
+radio buttons and the navbar's vault tooltip is a native `title` attribute.
+`style.css` keeps the palette and assigns it into Bootstrap's custom properties
+under `[data-bs-theme="dark"]` — the palette is defined in one place only.
+
+`Chart` renders inline SVG server-side, for the same offline reason, and hover
+labels are native `<title>` elements. Series colours are `--series-1…` in
 `style.css`, assigned in fixed order so a series keeps its colour across charts —
 never cycled, and never assigned by rank.
 
@@ -57,12 +64,17 @@ server does not guarantee order.
 
 `Config::fromEnvironment()` reads `ESKY_URL` / `ESKY_TOKEN` from the environment
 first, then falls back to `.env` in the project root. Missing values throw
-`EskyException`, which both page scripts catch and hand to `Page::error()` (a
+`EskyException`, which the page scripts catch and hand to `Layout::error()` (a
 self-contained 500 page — it `exit`s, so nothing after it runs).
 
-`Page` holds the shared view helpers (`e()` for escaping, `preview()`,
-`heading()`, `stamp()`). `Markdown::toHtml()` uses GitHub-Flavored CommonMark
-with `html_input => escape` — memory text is untrusted, so raw HTML in a memory
+`Page` holds the helpers that format a record (`e()` for escaping, `preview()`,
+`heading()`, `stamp()`). `Layout` holds the chrome every page wears — `head()`,
+`navbar()` and `error()`. `Layout::navbar()` resolves the vault name from
+`Config` itself rather than taking it as an argument, so a page cannot render
+the navbar and leave the vault unnamed; a config that will not load simply names
+no vault, which is what the error page needs.
+
+`Markdown::toHtml()` uses GitHub-Flavored CommonMark with `html_input => escape` — memory text is untrusted, so raw HTML in a memory
 must never be passed through.
 
 ## Constraints of the esky API

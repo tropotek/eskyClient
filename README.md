@@ -36,9 +36,10 @@ in `.env` to move it.
 
 ## Layout
 
-    src/        Config, SseParser, ResponseDecoder, Client, Api, Chart, Markdown, Page
+    src/        Config, SseParser, ResponseDecoder, Client, Api, Chart, Markdown,
+                Page, Layout
     public/     index.php (list and search), view.php (detail),
-                metrics.php (charts), style.css
+                metrics.php (charts), style.css, vendor/bootstrap.min.css
     bin/        smoke.php, a live check against the server
     tests/      PHPUnit unit tests
 
