@@ -155,8 +155,8 @@ final class ChartTest extends TestCase
 
     public function testAxisLabelsAreEvenlySpacedSoTheEndsDoNotCollide(): void
     {
-        /* Picking every nth row leaves a stub gap before the final label, which
-           is what made the last two dates overlap. */
+        /* Picking every nth row leaves a stub gap before the final label, and
+           the last two dates overlap. */
         $rows = [];
         for ($i = 0; $i < 90; $i++) {
             $rows[] = ['label' => sprintf('2026-06-%02d', $i % 28 + 1), 'values' => [1]];

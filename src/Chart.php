@@ -238,8 +238,9 @@ final class Chart
     /**
      * Thinned x labels, spread evenly from the first row to the last.
      *
-     * Drawing every nth row instead leaves a short gap before the final label —
-     * which is what put the last two dates on top of each other.
+     * Even spacing rather than every nth row: the axis has to be anchored at
+     * both ends, and every nth row leaves a short gap before the final label,
+     * which puts the last two dates on top of each other.
      *
      * @param list<Row> $rows
      */
@@ -306,7 +307,7 @@ final class Chart
     {
         return sprintf(
             // Scaled uniformly, not stretched to the panel: stretching widens
-            // the glyphs and is what makes date labels run into each other.
+            // the glyphs without heightening them, and the labels collide.
             '<svg class="chart" viewBox="0 0 %d %d" role="img">%s</svg>',
             self::WIDTH,
             self::HEIGHT,
