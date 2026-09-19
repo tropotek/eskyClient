@@ -70,6 +70,7 @@ $text = (string) ($memory['text'] ?? '');
     <h1><?= Page::e(Page::heading($memory)) ?></h1>
     <p class="meta"><?= Page::e((string) ($memory['kind'] ?? '')) ?> &middot; updated <?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></p>
 
+    <div class="detail">
     <section class="viewer">
         <input class="tab-state" type="radio" name="pane" id="pane-markdown" checked>
         <input class="tab-state" type="radio" name="pane" id="pane-html">
@@ -81,22 +82,26 @@ $text = (string) ($memory['text'] ?? '');
         <div class="body pane-html rendered"><?= Markdown::toHtml($text) ?></div>
     </section>
 
-    <table class="fields">
-        <tr><th>uid</th><td><?= Page::e((string) $memory['uid']) ?></td></tr>
-        <tr><th>title</th><td><?= Page::e((string) ($memory['title'] ?? '')) ?></td></tr>
-        <tr><th>kind</th><td><?= Page::e((string) ($memory['kind'] ?? '')) ?></td></tr>
-        <tr><th>tags</th><td><?= Page::e(implode(', ', array_map('strval', (array) ($memory['tags'] ?? [])))) ?></td></tr>
-        <tr><th>source</th><td><?= Page::e((string) ($memory['source'] ?? '')) ?></td></tr>
-        <tr><th>confidence</th><td><?= Page::e((string) ($memory['confidence'] ?? '')) ?></td></tr>
-        <tr><th>created</th><td><?= Page::e(Page::stamp((string) ($memory['created_at'] ?? ''))) ?></td></tr>
-        <tr><th>updated</th><td><?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></td></tr>
-        <?php if (!empty($memory['supersedes'])): ?>
-            <tr><th>supersedes</th><td><?= Page::e((string) $memory['supersedes']) ?></td></tr>
-        <?php endif; ?>
-        <?php if (!empty($memory['retired_at'])): ?>
-            <tr><th>retired</th><td><?= Page::e(Page::stamp((string) $memory['retired_at'])) ?></td></tr>
-        <?php endif; ?>
-    </table>
+    <aside class="fields">
+        <h2>Details</h2>
+        <dl>
+            <dt>uid</dt><dd><?= Page::e((string) $memory['uid']) ?></dd>
+            <dt>title</dt><dd><?= Page::e((string) ($memory['title'] ?? '')) ?></dd>
+            <dt>kind</dt><dd><?= Page::e((string) ($memory['kind'] ?? '')) ?></dd>
+            <dt>tags</dt><dd><?= Page::e(implode(', ', array_map('strval', (array) ($memory['tags'] ?? [])))) ?></dd>
+            <dt>source</dt><dd><?= Page::e((string) ($memory['source'] ?? '')) ?></dd>
+            <dt>confidence</dt><dd><?= Page::e((string) ($memory['confidence'] ?? '')) ?></dd>
+            <dt>created</dt><dd><?= Page::e(Page::stamp((string) ($memory['created_at'] ?? ''))) ?></dd>
+            <dt>updated</dt><dd><?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></dd>
+            <?php if (!empty($memory['supersedes'])): ?>
+                <dt>supersedes</dt><dd><?= Page::e((string) $memory['supersedes']) ?></dd>
+            <?php endif; ?>
+            <?php if (!empty($memory['retired_at'])): ?>
+                <dt>retired</dt><dd><?= Page::e(Page::stamp((string) $memory['retired_at'])) ?></dd>
+            <?php endif; ?>
+        </dl>
+    </aside>
+    </div>
 <?php endif; ?>
 </main>
 </body>
