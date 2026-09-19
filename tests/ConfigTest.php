@@ -23,6 +23,8 @@ final class ConfigTest extends TestCase
         @rmdir($this->dir);
         putenv('ESKY_URL');
         putenv('ESKY_TOKEN');
+        putenv('ESKY_API_URL');
+        putenv('ESKY_PROFILE');
     }
 
     public function testReadsFromEnvironment(): void
@@ -80,5 +82,37 @@ final class ConfigTest extends TestCase
         $this->expectExceptionMessageMatches('/ESKY_URL/');
 
         Config::fromEnvironment($this->dir);
+    }
+
+    public function testTheRestBaseAndProfileAreDerivedFromTheMcpUrl(): void
+    {
+        putenv('ESKY_URL=http://192.168.0.7:8011/mcp/personal');
+        putenv('ESKY_TOKEN=tok');
+
+        $config = Config::fromEnvironment($this->dir);
+
+        self::assertSame('http://192.168.0.7:8011', $config->apiBase);
+        self::assertSame('personal', $config->profile);
+    }
+
+    public function testAnMcpUrlWithNoProfileSegmentLeavesTheProfileUnknown(): void
+    {
+        putenv('ESKY_URL=http://example.test/mcp');
+        putenv('ESKY_TOKEN=tok');
+
+        self::assertNull(Config::fromEnvironment($this->dir)->profile);
+    }
+
+    public function testTheDerivedRestBaseAndProfileCanBeOverridden(): void
+    {
+        putenv('ESKY_URL=http://192.168.0.7:8011/mcp/personal');
+        putenv('ESKY_TOKEN=tok');
+        putenv('ESKY_API_URL=http://elsewhere.test:9000/');
+        putenv('ESKY_PROFILE=work');
+
+        $config = Config::fromEnvironment($this->dir);
+
+        self::assertSame('http://elsewhere.test:9000', $config->apiBase);
+        self::assertSame('work', $config->profile);
     }
 }

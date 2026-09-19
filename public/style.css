@@ -131,3 +131,78 @@ a { color: var(--accent); }
 .fields dt { color: var(--muted); font-size: .75rem; margin-top: 10px; }
 .fields dt:first-child { margin-top: 0; }
 .fields dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+
+/* Metrics page. Series colours are assigned in a fixed order, so a series keeps
+   its colour from chart to chart; the steps are chosen for this dark surface. */
+:root {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+}
+
+.nav { display: flex; align-items: baseline; gap: 14px; font-size: .875rem; margin-bottom: 18px; }
+.nav .here { color: var(--muted); }
+.nav .nav-profile { margin-left: auto; color: var(--muted); font-size: .8125rem; }
+
+.windows { display: flex; align-items: baseline; gap: 10px; margin: 0 0 20px; }
+.window {
+    font-size: .8125rem; padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line); text-decoration: none;
+}
+.window.current { color: var(--text); background: var(--panel); }
+.windows .meta { margin-left: auto; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.tile {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+}
+.tile-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+/* The value row keeps the height of the headline size whatever it holds, and
+   the note sits on the bottom edge, so a tile with a timestamp lines up with a
+   tile holding a count. */
+.tile-value {
+    font-size: 1.75rem; font-weight: 600; line-height: 1.2;
+    min-height: 2.1rem; display: flex; align-items: flex-end;
+}
+.tile-value.long { font-size: 1.125rem; letter-spacing: -.01em; white-space: nowrap; }
+.tile-note { font-size: .8125rem; color: var(--muted); margin-top: auto; padding-top: 2px; }
+
+.panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 14px 16px; margin-top: 16px; min-width: 0;
+}
+.panel h2 { margin: 0 0 4px; font-size: 1rem; }
+.panel .meta { margin: 0 0 12px; }
+.note { margin-top: 12px; }
+
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+.pair .panel { margin-top: 16px; }
+
+.chart { width: 100%; height: auto; display: block; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+/* The svg scales with the panel, so the type is sized in viewBox units and
+   comes out around 15px on a full-width panel. */
+.chart .axis-label, .chart .axis-value {
+    fill: var(--muted); font-size: 9px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+.chart .axis-value { text-anchor: end; }
+.chart .dot { opacity: .85; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 10px; font-size: .8125rem; color: var(--muted); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+.ranked { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ranked li { display: grid; grid-template-columns: minmax(0, 12rem) minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.ranked-label { overflow-wrap: anywhere; font-size: .875rem; }
+.ranked-value { color: var(--muted); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.ranked .bar { display: flex; gap: 2px; height: 14px; }
+.bar-fill { display: block; height: 100%; border-radius: 2px; min-width: 2px; }
+
+@media (max-width: 640px) {
+    .ranked li { grid-template-columns: minmax(0, 1fr) auto; }
+    .ranked .bar { grid-column: 1 / -1; }
+}

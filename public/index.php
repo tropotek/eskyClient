@@ -27,6 +27,11 @@ try {
 </head>
 <body>
 <main class="wrap">
+    <nav class="nav">
+        <span class="here">Memories</span>
+        <a href="/metrics.php">Metrics</a>
+    </nav>
+
     <h1>esky memories</h1>
 
     <form class="search" method="get" action="/index.php">

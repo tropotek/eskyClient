@@ -1,7 +1,8 @@
 # esky client
 
 A read-only web browser for the esky memory server. Lists memories newest first,
-searches them, and shows a memory as both raw Markdown and rendered HTML.
+searches them, shows a memory as both raw Markdown and rendered HTML, and charts
+what the store holds and what has been asked of it.
 
 ## Requirements
 
@@ -29,12 +30,15 @@ in `.env` to move it.
 | `ESKY_URL` | esky MCP endpoint, e.g. `http://host:8011/mcp/personal` |
 | `ESKY_TOKEN` | Bearer token, without the `Bearer ` prefix |
 | `HTTP_APP_PORT` | Host port to publish, default `8080` |
+| `ESKY_API_URL` | Optional. REST base, e.g. `http://host:8011`; derived from `ESKY_URL` when unset |
+| `ESKY_PROFILE` | Optional. Profile to read metrics for; derived from `ESKY_URL` when unset |
 | `UID` / `GID` | Container user ids, match your host user so bind-mounted files stay editable |
 
 ## Layout
 
-    src/        Config, SseParser, ResponseDecoder, Client, Markdown, Page
-    public/     index.php (list and search), view.php (detail), style.css
+    src/        Config, SseParser, ResponseDecoder, Client, Api, Chart, Markdown, Page
+    public/     index.php (list and search), view.php (detail),
+                metrics.php (charts), style.css
     bin/        smoke.php, a live check against the server
     tests/      PHPUnit unit tests
 
@@ -51,6 +55,22 @@ Run the unit tests:
 Check connectivity to the live server:
 
     docker compose run --rm app php bin/smoke.php
+
+## Metrics
+
+`/metrics.php` charts a 7, 30 or 90 day window: searches per day against the ones
+that came back empty, how much each search matched, the questions asked most
+often and whether they were answered, the memories that answered them, and the
+store's own growth, retirement, kind mix and tags.
+
+It reads esky's REST surface (`/api/{profile}/queries/summary` and
+`/api/{profile}/stats`) rather than MCP, with the same bearer token. The base URL
+and profile are derived from `ESKY_URL`, so an `ESKY_URL` without a
+`/mcp/{profile}` path needs `ESKY_PROFILE` set. The server must be new enough to
+serve those two endpoints.
+
+Charts are server-rendered inline SVG — no JavaScript and no CDN, so the page
+works on a LAN with no route to the internet.
 
 ## Notes on the esky API
 

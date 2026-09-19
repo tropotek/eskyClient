@@ -22,9 +22,22 @@ may open a socket.
 
 ## Architecture
 
-A read-only web UI over the esky memory server, spoken to as MCP over HTTP.
-Two request paths, no router, no framework: `public/index.php` (list + search)
-and `public/view.php` (single memory). PSR-4 `Esky\` → `src/`.
+A read-only web UI over the esky memory server. Three request paths, no router,
+no framework: `public/index.php` (list + search), `public/view.php` (single
+memory) and `public/metrics.php` (charts). PSR-4 `Esky\` → `src/`.
+
+**Two transports, deliberately.** The memory pages speak MCP over HTTP
+(`Client`); `metrics.php` reads the REST surface (`Api`), because the aggregates
+it charts are not MCP tools — they are for a human reviewing the store, and every
+tool description costs context in every agent session. `Config` derives the REST
+base and the profile name from `ESKY_URL` so the two are configured once;
+`ESKY_API_URL` / `ESKY_PROFILE` override that.
+
+`Chart` renders inline SVG server-side. No JavaScript and no CDN: this is read on
+a LAN that need not have a route to the internet, and hover labels are native
+`<title>` elements for the same reason. Series colours are `--series-1…` in
+`style.css`, assigned in fixed order so a series keeps its colour across charts —
+never cycled, and never assigned by rank.
 
 The transport is a layered decode, and each layer has its own unit test:
 
