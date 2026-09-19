@@ -1,3 +1,7 @@
+/* The palette. Bootstrap supplies the layout and the components; everything
+   below either feeds it these colours or styles what Bootstrap has no
+   equivalent for (the SVG charts, the no-JavaScript tab toggle, the ranked
+   bars and the rendered Markdown). */
 :root {
     --bg: #14161a;
     --panel: #1d2026;
@@ -8,69 +12,78 @@
     --error: #ff8189;
 }
 
-* { box-sizing: border-box; }
+/* Bootstrap's dark theme is a set of custom properties, so the palette is
+   assigned into it here and nowhere else. */
+[data-bs-theme="dark"] {
+    --bs-body-bg: var(--bg);
+    --bs-body-bg-rgb: 20, 22, 26;
+    --bs-body-color: var(--text);
+    --bs-body-color-rgb: 223, 227, 234;
+    --bs-emphasis-color: #fff;
+    --bs-secondary-color: var(--muted);
+    --bs-secondary-color-rgb: 139, 147, 161;
+    --bs-secondary-bg: var(--panel);
+    --bs-tertiary-bg: var(--panel);
+    --bs-tertiary-color: var(--muted);
+    --bs-border-color: var(--line);
+    --bs-border-color-translucent: var(--line);
+    --bs-link-color: var(--accent);
+    --bs-link-color-rgb: 124, 196, 255;
+    --bs-link-hover-color: #a8d8ff;
+    --bs-link-hover-color-rgb: 168, 216, 255;
+    --bs-code-color: var(--accent);
+    --bs-heading-color: var(--text);
 
-body {
-    margin: 0;
-    background: var(--bg);
+    --bs-card-bg: var(--panel);
+    --bs-card-border-color: var(--line);
+    --bs-card-cap-bg: var(--panel);
+
+    --bs-danger-text-emphasis: var(--error);
+    --bs-danger-bg-subtle: #2a181b;
+    --bs-danger-border-subtle: #4a2a2e;
+
+    --bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --bs-body-font-size: 1rem;
+    --bs-body-line-height: 1.6;
+}
+
+/* The pages were laid out for a 1280px measure; Bootstrap's widest container
+   is a little broader than that. */
+.container { max-width: 1280px; }
+
+/* Bootstrap sizes h1 for a marketing page; these are application headings. */
+h1 { font-size: 1.5rem; }
+
+.navbar-brand { font-weight: 600; }
+
+/* The vault name carries a native title attribute; the dotted underline is
+   what tells a reader there is something to hover. */
+.vault {
+    cursor: help;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
     color: var(--text);
-    font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
-.wrap { max-width: 1280px; margin: 0 auto; padding: 32px 24px 64px; }
-
-h1 { font-size: 1.5rem; margin: 0 0 20px; }
-
-a { color: var(--accent); }
-
-.search { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
-.search input {
-    flex: 1; padding: 10px 12px; border-radius: 6px;
-    border: 1px solid var(--line); background: var(--panel); color: var(--text);
-}
-.search button {
-    padding: 10px 16px; border-radius: 6px; border: 1px solid var(--line);
-    background: var(--panel); color: var(--text); cursor: pointer;
-}
-.search .clear { font-size: .875rem; }
-
-.meta, .empty { color: var(--muted); font-size: .875rem; }
-.error { color: var(--error); }
-
-.list { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 12px; }
-
-.card {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 8px; padding: 14px 16px;
-}
-.card-link { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; text-decoration: none; }
-.card-link:hover .title { text-decoration: underline; }
-.card .title { font-weight: 600; color: var(--accent); }
-.card-meta { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
-.card .kind, .card time { color: var(--muted); font-size: .8125rem; }
-.excerpt { margin: 8px 0 0; color: var(--text); }
-.tags { margin: 10px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.tag {
-    font-size: .75rem; color: var(--muted);
-    border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px;
-}
-
-/* Detail page: content left, metadata in a fixed-width right column. */
-.detail { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; margin-top: 20px; align-items: start; }
-
-@media (max-width: 860px) {
-    .detail { grid-template-columns: minmax(0, 1fr); }
-}
-
-.viewer {
-    min-width: 0;
-    background: var(--panel);
+/* A tag is a badge that reads as an outline, not a filled pill. */
+.badge.tag {
+    color: var(--muted);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    overflow: hidden;
+    background: transparent;
+    font-weight: 400;
 }
 
-/* Tab state lives in hidden radios so the toggle works without JavaScript. */
+.card-link-row { text-decoration: none; }
+.card-link-row:hover .title { text-decoration: underline; }
+.card-link-row .title { font-weight: 600; color: var(--accent); }
+
+/* The window pills on the metrics page: links that look like the current
+   selection when they are it. */
+.window { text-decoration: none; }
+.window.current { color: var(--text); background: var(--panel); }
+
+/* Tab state lives in hidden radios so the toggle works without JavaScript,
+   which rules out Bootstrap's own tabs. */
 .tab-state { position: absolute; opacity: 0; pointer-events: none; }
 
 .tabs { display: flex; border-bottom: 1px solid var(--line); }
@@ -81,7 +94,6 @@ a { color: var(--accent); }
 }
 .tabs label:hover { color: var(--text); }
 
-.body { padding: 14px; overflow-x: auto; }
 .pane-markdown, .pane-html { display: none; }
 
 #pane-markdown:checked ~ .tabs label[for="pane-markdown"],
@@ -96,15 +108,17 @@ a { color: var(--accent); }
 
 .pane-markdown pre {
     margin: 0; white-space: pre-wrap; word-wrap: break-word;
-    font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+    font: 13px/1.55 var(--bs-font-monospace);
 }
+
+/* Rendered Markdown comes from CommonMark as plain tags, so it is styled here
+   rather than with Bootstrap classes it cannot be given. */
 .rendered :first-child { margin-top: 0; }
 .rendered :last-child { margin-bottom: 0; }
 .rendered pre {
     background: #0f1115; padding: 10px; border-radius: 6px; overflow-x: auto;
-    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    font: 13px/1.5 var(--bs-font-monospace);
 }
-.rendered code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .rendered table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: .9375rem; }
 .rendered th, .rendered td { text-align: left; padding: 6px 10px; border: 1px solid var(--line); }
 .rendered th { background: #171a20; color: var(--muted); font-weight: 600; }
@@ -119,16 +133,14 @@ a { color: var(--accent); }
 .rendered h2 { font-size: 1.0625rem; color: var(--accent); }
 .rendered a { word-break: break-word; }
 
-.fields {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 8px; padding: 14px 16px; font-size: .875rem;
-}
+/* The metadata column is a fixed measure once there is room beside the body. */
+@media (min-width: 992px) { .fields-col { width: 300px; } }
+
 .fields h2 {
     margin: 0 0 10px; font-size: .75rem; font-weight: 600;
     text-transform: uppercase; letter-spacing: .08em; color: var(--muted);
 }
-.fields dl { margin: 0; }
-.fields dt { color: var(--muted); font-size: .75rem; margin-top: 10px; }
+.fields dt { color: var(--muted); font-size: .75rem; margin-top: 10px; font-weight: 400; }
 .fields dt:first-child { margin-top: 0; }
 .fields dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 
@@ -141,23 +153,6 @@ a { color: var(--accent); }
     --series-4: #c98500;
 }
 
-.nav { display: flex; align-items: baseline; gap: 14px; font-size: .875rem; margin-bottom: 18px; }
-.nav .here { color: var(--muted); }
-.nav .nav-profile { margin-left: auto; color: var(--muted); font-size: .8125rem; }
-
-.windows { display: flex; align-items: baseline; gap: 10px; margin: 0 0 20px; }
-.window {
-    font-size: .8125rem; padding: 4px 10px; border-radius: 999px;
-    border: 1px solid var(--line); text-decoration: none;
-}
-.window.current { color: var(--text); background: var(--panel); }
-.windows .meta { margin-left: auto; }
-
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.tile {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
-}
 .tile-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 /* The value row keeps the height of the headline size whatever it holds, and
    the note sits on the bottom edge, so a tile with a timestamp lines up with a
@@ -169,24 +164,13 @@ a { color: var(--accent); }
 .tile-value.long { font-size: 1.125rem; letter-spacing: -.01em; white-space: nowrap; }
 .tile-note { font-size: .8125rem; color: var(--muted); margin-top: auto; padding-top: 2px; }
 
-.panel {
-    background: var(--panel); border: 1px solid var(--line);
-    border-radius: 8px; padding: 14px 16px; margin-top: 16px; min-width: 0;
-}
-.panel h2 { margin: 0 0 4px; font-size: 1rem; }
-.panel .meta { margin: 0 0 12px; }
-.note { margin-top: 12px; }
-
-.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
-.pair .panel { margin-top: 16px; }
-
 .chart { width: 100%; height: auto; display: block; }
 .chart .grid { stroke: var(--line); stroke-width: 1; }
 /* The svg scales with the panel, so the type is sized in viewBox units and
    comes out around 15px on a full-width panel. */
 .chart .axis-label, .chart .axis-value {
     fill: var(--muted); font-size: 9px;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-family: var(--bs-font-sans-serif);
 }
 .chart .axis-value { text-anchor: end; }
 .chart .dot { opacity: .85; }

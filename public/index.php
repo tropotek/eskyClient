@@ -6,6 +6,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 use Esky\Client;
 use Esky\Config;
 use Esky\EskyException;
+use Esky\Layout;
 use Esky\Page;
 
 $query = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
@@ -14,44 +15,35 @@ try {
     $client = new Client(Config::fromEnvironment(dirname(__DIR__)));
     $records = $query === '' ? $client->recent(50) : $client->search($query, 50);
 } catch (EskyException $e) {
-    Page::error($e->getMessage());
+    Layout::error($e->getMessage());
 }
 ?>
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Esky Memories</title>
-<link rel="stylesheet" href="/style.css">
-</head>
+<html lang="en" data-bs-theme="dark">
+<?= Layout::head('Esky Memories') ?>
 <body>
-<main class="wrap">
-    <nav class="nav">
-        <span class="here">Memories</span>
-        <a href="/metrics.php">Metrics</a>
-    </nav>
+<?= Layout::navbar('/index.php') ?>
+<main class="container pb-5">
+    <h1>Memories</h1>
 
-    <h1>🧊 Esky Memories</h1>
-
-    <form class="search" method="get" action="/index.php">
-        <input type="search" name="q" value="<?= Page::e($query) ?>" placeholder="Search memories…" aria-label="Search memories">
-        <button type="submit">Search</button>
+    <form class="d-flex gap-2 align-items-center mb-3" method="get" action="/index.php">
+        <input class="form-control" type="search" name="q" value="<?= Page::e($query) ?>" placeholder="Search memories…" aria-label="Search memories">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
         <?php if ($query !== ''): ?>
-            <a class="clear" href="/index.php">Clear</a>
+            <a class="small" href="/index.php">Clear</a>
         <?php endif; ?>
     </form>
 
-    <p class="meta">
+    <p class="text-body-secondary small">
         <?= count($records) ?> <?= count($records) === 1 ? 'memory' : 'memories' ?>
         <?= $query === '' ? 'most recently updated' : 'matching ' . Page::e($query) ?>
     </p>
 
     <?php if ($records === []): ?>
-        <p class="empty">Nothing to show.</p>
+        <p class="text-body-secondary small">Nothing to show.</p>
     <?php endif; ?>
 
-    <ul class="list">
+    <ul class="list-unstyled d-grid gap-3 mt-3 mb-0">
     <?php foreach ($records as $record): ?>
         <?php
         $href = '/view.php?uid=' . rawurlencode((string) $record['uid']);
@@ -60,19 +52,21 @@ try {
         }
         ?>
         <li class="card">
-            <a class="card-link" href="<?= Page::e($href) ?>">
-                <span class="title"><?= Page::e(Page::heading($record)) ?></span>
-                <span class="card-meta">
-                    <span class="kind"><?= Page::e((string) ($record['kind'] ?? '')) ?></span>
-                    <time><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
-                </span>
-            </a>
-            <p class="excerpt"><?= Page::e(Page::preview((string) ($record['text'] ?? ''))) ?></p>
-            <p class="tags">
-            <?php foreach ((array) ($record['tags'] ?? []) as $tag): ?>
-                <span class="tag"><?= Page::e((string) $tag) ?></span>
-            <?php endforeach; ?>
-            </p>
+            <div class="card-body">
+                <a class="card-link-row d-flex justify-content-between align-items-baseline gap-3" href="<?= Page::e($href) ?>">
+                    <span class="title"><?= Page::e(Page::heading($record)) ?></span>
+                    <span class="d-flex align-items-baseline gap-2 text-nowrap text-body-secondary small">
+                        <span><?= Page::e((string) ($record['kind'] ?? '')) ?></span>
+                        <time><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
+                    </span>
+                </a>
+                <p class="mt-2 mb-0"><?= Page::e(Page::preview((string) ($record['text'] ?? ''))) ?></p>
+                <p class="d-flex flex-wrap gap-1 mt-2 mb-0">
+                <?php foreach ((array) ($record['tags'] ?? []) as $tag): ?>
+                    <span class="badge rounded-pill tag"><?= Page::e((string) $tag) ?></span>
+                <?php endforeach; ?>
+                </p>
+            </div>
         </li>
     <?php endforeach; ?>
     </ul>

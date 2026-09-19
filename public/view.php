@@ -6,6 +6,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 use Esky\Client;
 use Esky\Config;
 use Esky\EskyException;
+use Esky\Layout;
 use Esky\Markdown;
 use Esky\Page;
 
@@ -13,7 +14,7 @@ $uid = isset($_GET['uid']) ? trim((string) $_GET['uid']) : '';
 $query = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
 
 if ($uid === '') {
-    Page::error('No memory id was given.');
+    Layout::error('No memory id was given.');
 }
 
 /**
@@ -41,7 +42,7 @@ try {
         $memory = $find($client->recent(500), $uid);
     }
 } catch (EskyException $e) {
-    Page::error($e->getMessage());
+    Layout::error($e->getMessage());
 }
 
 if ($memory === null) {
@@ -52,39 +53,40 @@ $backHref = $query === '' ? '/index.php' : '/index.php?q=' . rawurlencode($query
 $text = (string) ($memory['text'] ?? '');
 ?>
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= $memory === null ? 'Not found' : 'Esky — ' . Page::e(Page::heading($memory)) ?></title>
-<link rel="stylesheet" href="/style.css">
-</head>
+<html lang="en" data-bs-theme="dark">
+<?= Layout::head($memory === null ? 'Not found' : 'Esky — ' . Page::heading($memory)) ?>
 <body>
-<main class="wrap">
+<?= Layout::navbar('/index.php') ?>
+<main class="container pb-5">
     <p><a href="<?= Page::e($backHref) ?>">&larr; Back to the list</a></p>
 
 <?php if ($memory === null): ?>
     <h1>Memory not found</h1>
-    <p class="empty">No memory with the id <code><?= Page::e($uid) ?></code> was found.</p>
+    <p class="text-body-secondary small">No memory with the id <code><?= Page::e($uid) ?></code> was found.</p>
 <?php else: ?>
     <h1><?= Page::e(Page::heading($memory)) ?></h1>
-    <p class="meta"><?= Page::e((string) ($memory['kind'] ?? '')) ?> &middot; updated <?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></p>
+    <p class="text-body-secondary small"><?= Page::e((string) ($memory['kind'] ?? '')) ?> &middot; updated <?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></p>
 
-    <div class="detail">
-    <section class="viewer">
+    <!-- Content left, metadata in a fixed-width right column. -->
+    <div class="row g-3 mt-2 align-items-start">
+    <div class="col-12 col-lg">
+    <section class="card overflow-hidden">
         <input class="tab-state" type="radio" name="pane" id="pane-markdown" checked>
         <input class="tab-state" type="radio" name="pane" id="pane-html">
         <nav class="tabs">
             <label for="pane-markdown">Markdown</label>
             <label for="pane-html">HTML</label>
         </nav>
-        <div class="body pane-markdown"><pre><?= Page::e($text) ?></pre></div>
-        <div class="body pane-html rendered"><?= Markdown::toHtml($text) ?></div>
+        <div class="card-body pane-markdown overflow-auto"><pre><?= Page::e($text) ?></pre></div>
+        <div class="card-body pane-html rendered overflow-auto"><?= Markdown::toHtml($text) ?></div>
     </section>
+    </div>
 
-    <aside class="fields">
+    <aside class="col-12 col-lg-auto fields-col">
+    <div class="card fields">
+        <div class="card-body small">
         <h2>Details</h2>
-        <dl>
+        <dl class="mb-0">
             <dt>uid</dt><dd><?= Page::e((string) $memory['uid']) ?></dd>
             <dt>title</dt><dd><?= Page::e((string) ($memory['title'] ?? '')) ?></dd>
             <dt>kind</dt><dd><?= Page::e((string) ($memory['kind'] ?? '')) ?></dd>
@@ -100,6 +102,8 @@ $text = (string) ($memory['text'] ?? '');
                 <dt>retired</dt><dd><?= Page::e(Page::stamp((string) $memory['retired_at'])) ?></dd>
             <?php endif; ?>
         </dl>
+        </div>
+    </div>
     </aside>
     </div>
 <?php endif; ?>

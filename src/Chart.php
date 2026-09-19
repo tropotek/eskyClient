@@ -190,8 +190,10 @@ final class Chart
         $long = mb_strlen($value) > 8 ? ' long' : '';
 
         return sprintf(
-            '<div class="tile"><span class="tile-label">%s</span>'
-            . '<span class="tile-value%s">%s</span><span class="tile-note">%s</span></div>',
+            '<div class="col"><div class="card h-100"><div class="card-body d-flex flex-column">'
+            . '<span class="tile-label">%s</span>'
+            . '<span class="tile-value%s">%s</span>'
+            . '<span class="tile-note">%s</span></div></div></div>',
             Page::e($label),
             $long,
             Page::e($value),
@@ -317,7 +319,7 @@ final class Chart
 
     private static function empty(): string
     {
-        return '<p class="empty">Nothing recorded in this window.</p>';
+        return '<p class="text-body-secondary small">Nothing recorded in this window.</p>';
     }
 
     /** Trims the float noise that would otherwise fill the markup. */
