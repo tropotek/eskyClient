@@ -4,6 +4,15 @@ A read-only web browser for the esky memory server. Lists memories newest first,
 searches them, shows a memory as both raw Markdown and rendered HTML, and charts
 what the store holds and what has been asked of it.
 
+## The server
+
+This is a viewer, not a store. It needs a running
+[**esky**](https://github.com/tropotek/esky) — the self-hosted MCP memory
+server it reads from, where agents write the memories in the first place and
+where profiles, bearer tokens and the query log live. Set that up first; its
+README covers installing the server, creating a profile and issuing the token
+this app needs.
+
 ## Requirements
 
 Docker and Docker Compose. There is no need for PHP on the host — everything runs
