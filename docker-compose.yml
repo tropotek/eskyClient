@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    env_file:
+      - ./.env
+    volumes:
+      - ./:/app
+    ports:
+      - "${HTTP_APP_PORT:-8080}:80"
+    tty: true
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: :80
