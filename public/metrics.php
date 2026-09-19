@@ -52,7 +52,7 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>esky metrics</title>
+<title>Esky Metrics</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -63,7 +63,7 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
         <span class="nav-profile"><?= Page::e((string) $config->profile) ?></span>
     </nav>
 
-    <h1>esky metrics</h1>
+    <h1>🧊 Esky Metrics</h1>
 
     <p class="windows">
         <?php foreach (WINDOWS as $window): ?>

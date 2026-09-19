@@ -54,7 +54,7 @@ final class Page
         echo <<<HTML
         <!doctype html>
         <html lang="en"><head><meta charset="utf-8">
-        <title>esky — error</title>
+        <title>Esky — error</title>
         <link rel="stylesheet" href="/style.css"></head>
         <body><main class="wrap">
         <h1>Something went wrong</h1>

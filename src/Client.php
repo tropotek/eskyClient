@@ -50,7 +50,7 @@ final class Client
 
         $messages = SseParser::messages($response['body']);
         if ($messages === []) {
-            throw new EskyException('esky returned no parsable message for ' . $tool);
+            throw new EskyException('Esky returned no parsable message for ' . $tool);
         }
 
         return ResponseDecoder::records($messages[0]);
@@ -74,7 +74,7 @@ final class Client
         ]);
 
         if ($response['sessionId'] === null) {
-            throw new EskyException('esky did not return an Mcp-Session-Id header');
+            throw new EskyException('Esky did not return an Mcp-Session-Id header');
         }
         $this->sessionId = $response['sessionId'];
 
@@ -108,7 +108,7 @@ final class Client
         if ($raw === false) {
             $error = curl_error($ch);
             curl_close($ch);
-            throw new EskyException('Could not reach esky: ' . $error);
+            throw new EskyException('Could not reach Esky: ' . $error);
         }
 
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
@@ -120,7 +120,7 @@ final class Client
 
         if ($status !== 200 && $status !== 202) {
             throw new EskyException(sprintf(
-                'esky returned HTTP %d: %s',
+                'Esky returned HTTP %d: %s',
                 $status,
                 substr(trim($body), 0, 300)
             ));

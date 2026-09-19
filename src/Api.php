@@ -57,11 +57,11 @@ final class Api
         $response = ($this->transport)($url, $this->config->token);
 
         if ($response['status'] === 401) {
-            throw new EskyException('esky rejected the token for this profile.');
+            throw new EskyException('Esky rejected the token for this profile.');
         }
         if ($response['status'] !== 200) {
             throw new EskyException(sprintf(
-                'esky returned HTTP %d: %s',
+                'Esky returned HTTP %d: %s',
                 $response['status'],
                 substr(trim($response['body']), 0, 300)
             ));
@@ -69,7 +69,7 @@ final class Api
 
         $decoded = json_decode($response['body'], true);
         if (!is_array($decoded)) {
-            throw new EskyException('esky sent a body that could not be read as JSON.');
+            throw new EskyException('Esky sent a body that could not be read as JSON.');
         }
 
         return $decoded;
@@ -89,7 +89,7 @@ final class Api
         if ($body === false) {
             $error = curl_error($ch);
             curl_close($ch);
-            throw new EskyException('Could not reach esky: ' . $error);
+            throw new EskyException('Could not reach Esky: ' . $error);
         }
 
         $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);

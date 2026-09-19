@@ -22,7 +22,7 @@ try {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>esky memories</title>
+<title>Esky Memories</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -32,7 +32,7 @@ try {
         <a href="/metrics.php">Metrics</a>
     </nav>
 
-    <h1>esky memories</h1>
+    <h1>🧊 Esky Memories</h1>
 
     <form class="search" method="get" action="/index.php">
         <input type="search" name="q" value="<?= Page::e($query) ?>" placeholder="Search memories…" aria-label="Search memories">

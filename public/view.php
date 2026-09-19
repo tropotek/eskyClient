@@ -56,7 +56,7 @@ $text = (string) ($memory['text'] ?? '');
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= $memory === null ? 'Not found' : 'esky — ' . Page::e(Page::heading($memory)) ?></title>
+<title><?= $memory === null ? 'Not found' : 'Esky — ' . Page::e(Page::heading($memory)) ?></title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
