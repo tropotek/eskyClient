@@ -52,8 +52,20 @@ final class LayoutTest extends TestCase
         $html = Layout::head('Esky Memories');
 
         self::assertStringContainsString('href="/vendor/bootstrap.min.css"', $html);
+        self::assertStringContainsString('src="/vendor/bootstrap.bundle.min.js"', $html);
         self::assertStringContainsString('href="/style.css"', $html);
         self::assertStringNotContainsString('//cdn', $html);
+        self::assertStringNotContainsString('http', $html);
+    }
+
+    /* The dropdowns need Bootstrap's JavaScript, which is why it is vendored
+       at all — so the file has to actually be there. */
+    public function testTheBootstrapBundleIsVendoredOnDisk(): void
+    {
+        $path = dirname(__DIR__) . '/public/vendor/bootstrap.bundle.min.js';
+
+        self::assertFileExists($path);
+        self::assertGreaterThan(50_000, filesize($path));
     }
 
     public function testTheTitleIsEscaped(): void

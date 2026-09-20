@@ -21,8 +21,10 @@ final class Layout
 
     /**
      * Bootstrap is vendored rather than loaded from a CDN: these pages are read
-     * on a LAN that need not have a route to the internet. Its own JavaScript
-     * is not loaded at all — nothing here needs it.
+     * on a LAN that need not have a route to the internet. Its JavaScript
+     * bundle is vendored the same way, for the navbar's dropdowns — the vault
+     * selector and the settings menu — which are the only components here that
+     * need it.
      */
     public static function head(string $title): string
     {
@@ -35,6 +37,7 @@ final class Layout
         <title>{$safe}</title>
         <link rel="stylesheet" href="/vendor/bootstrap.min.css">
         <link rel="stylesheet" href="/style.css">
+        <script src="/vendor/bootstrap.bundle.min.js" defer></script>
         </head>
         HTML;
     }

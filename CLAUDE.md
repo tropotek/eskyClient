@@ -34,10 +34,12 @@ base and the profile name from `ESKY_URL` so the two are configured once;
 `ESKY_API_URL` / `ESKY_PROFILE` override that.
 
 Bootstrap 5.3 supplies the layout and components, in its dark mode, vendored at
-`public/vendor/bootstrap.min.css`. No CDN and no Bootstrap JavaScript: this is
-read on a LAN that need not have a route to the internet. That rules out
-Bootstrap's tab and tooltip components, so the detail page's tabs are hidden
-radio buttons and the navbar's vault tooltip is a native `title` attribute.
+`public/vendor/bootstrap.min.css`. No CDN: this is read on a LAN that need not
+have a route to the internet. Bootstrap's JavaScript bundle is vendored
+alongside the stylesheet, for the navbar's two dropdowns (the settings menu and
+the vault selector) — that is the only thing here that uses it. The detail
+page's tabs remain hidden radio buttons and the vault tooltip remains a native
+`title` attribute; converting them is possible now but has not been done.
 `style.css` keeps the palette and assigns it into Bootstrap's custom properties
 under `[data-bs-theme="dark"]` — the palette is defined in one place only.
 
