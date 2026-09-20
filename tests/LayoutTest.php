@@ -43,7 +43,10 @@ final class LayoutTest extends TestCase
         foreach (['/index.php', '/metrics.php', ''] as $here) {
             $html = Layout::navbar($here);
 
-            self::assertStringContainsString(\Esky\Page::e($first), $html);
+            self::assertStringContainsString(
+                '<span class="vault d-none d-sm-inline ms-2">' . \Esky\Page::e($first) . '</span>',
+                $html
+            );
         }
     }
 
@@ -94,24 +97,27 @@ final class LayoutTest extends TestCase
         self::assertFileExists(dirname(__DIR__) . '/public/img/user.png');
     }
 
-    /* Both menus sit at the right-hand end, so both panels align to their
-       toggle rather than spilling off the edge of the viewport. */
-    public function testBothDropdownPanelsAreRightAligned(): void
+    /* One menu at the right-hand end, its panel aligned to the toggle rather
+       than spilling off the edge of the viewport. */
+    public function testTheOneDropdownPanelIsRightAligned(): void
     {
-        $this->vaultTitles();
+        $html = Layout::navbar('/index.php');
 
-        self::assertSame(2, substr_count(Layout::navbar('/index.php'), 'dropdown-menu-end'));
+        self::assertSame(1, substr_count($html, 'dropdown-menu-end'));
+        self::assertSame(1, substr_count($html, 'data-bs-toggle="dropdown"'));
     }
 
-    public function testTheUserMenuSitsAfterTheVaultSelector(): void
+    /* The vaults head the menu, above the pages. */
+    public function testTheVaultsSitAboveThePagesInTheMenu(): void
     {
         $this->vaultTitles();
         $html = Layout::navbar('/index.php');
 
+        self::assertStringContainsString('dropdown-header">Vaults<', $html);
         self::assertGreaterThan(
-            strpos($html, 'vault-menu'),
-            strpos($html, 'user-menu'),
-            'the user menu should be the last control in the navbar'
+            strpos($html, 'href="/vault.php?to='),
+            strpos($html, 'href="/settings.php"'),
+            'the vault list should come before the page links'
         );
     }
 
@@ -137,7 +143,9 @@ final class LayoutTest extends TestCase
         $html = Layout::navbarFor(null, '/index.php');
 
         self::assertStringContainsString('navbar-brand', $html);
-        self::assertStringNotContainsString('vault-menu', $html);
+        self::assertStringContainsString('href="/settings.php"', $html);
+        self::assertStringNotContainsString('href="/vault.php', $html);
+        self::assertStringNotContainsString('class="vault', $html);
     }
 
     public function testTheVaultTitleIsEscaped(): void

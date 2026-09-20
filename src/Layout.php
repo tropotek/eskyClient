@@ -80,37 +80,22 @@ final class Layout
                 );
         }
 
-        /* Bootstrap's own avatar-dropdown pattern, with a glyph instead of a
-           same placeholder avatar tk8base uses. There is no user behind it —
-           no accounts, no login — so the header names the vault being read
-           rather than a person. */
-        $header = $vaults === null
-            ? ''
-            : sprintf(
-                '<li><h6 class="dropdown-header">%s</h6></li><li><hr class="dropdown-divider"></li>',
-                Page::e($vaults->current(Session::vault())->title)
-            );
-
-        $menu = <<<HTML
-        <div class="dropdown user-menu">
-            <button class="btn btn-sm user-toggle" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu">
-                <img src="/img/user.png" alt="" width="32" height="32" class="rounded-circle">
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                {$header}
-                <li><a class="dropdown-item" href="/settings.php">Settings</a></li>
-                <li><a class="dropdown-item" href="/about.php">About</a></li>
-            </ul>
-        </div>
-        HTML;
-
-        $selector = '';
+        /* One menu, not two: the vaults sit at the top of the avatar dropdown
+           with a tick on the active one, then the pages. Bootstrap's own
+           avatar-dropdown pattern, with the same placeholder tk8base serves.
+           There is no user behind it — no accounts, no login — so the name
+           beside the avatar is the vault being read, not a person. */
+        $items = '';
+        $name = '';
         if ($vaults !== null) {
             $active = $vaults->current(Session::vault());
+            $name = sprintf(
+                '<span class="vault d-none d-sm-inline ms-2">%s</span>',
+                Page::e($active->title)
+            );
             $back = self::backTarget($here);
 
-            $items = '';
+            $items = '<li><h6 class="dropdown-header">Vaults</h6></li>';
             foreach ($vaults->all() as $vault) {
                 $items .= sprintf(
                     '<li><a class="dropdown-item%s" href="/vault.php?to=%s&amp;back=%s">%s%s</a></li>',
@@ -121,19 +106,25 @@ final class Layout
                     $vault->name === $active->name ? ' &#10003;' : ''
                 );
             }
-
-            /* A native title attribute rather than Bootstrap's tooltip: that
-               one needs Popper as well, and nothing else here would use it. */
-            $selector = sprintf(
-                '<div class="dropdown vault-menu">'
-                . '<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"'
-                . ' data-bs-toggle="dropdown" aria-expanded="false" title="%s">%s</button>'
-                . '<ul class="dropdown-menu dropdown-menu-end">%s</ul></div>',
-                Page::e(self::VAULT_TIP),
-                Page::e($active->title),
-                $items
-            );
+            $items .= '<li><hr class="dropdown-divider"></li>';
         }
+
+        $tip = Page::e(self::VAULT_TIP);
+
+        $menu = <<<HTML
+        <div class="dropdown user-menu">
+            <button class="btn btn-sm user-toggle d-flex align-items-center" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" title="{$tip}" aria-label="Menu">
+                <img src="/img/user.png" alt="" width="32" height="32" class="rounded-circle">
+                {$name}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                {$items}
+                <li><a class="dropdown-item" href="/settings.php">Settings</a></li>
+                <li><a class="dropdown-item" href="/about.php">About</a></li>
+            </ul>
+        </div>
+        HTML;
 
         return <<<HTML
         <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom mb-4">
@@ -142,7 +133,6 @@ final class Layout
                     <span aria-hidden="true">🧊</span> Esky
                 </a>
                 <div class="d-flex align-items-center gap-2 order-lg-last ms-auto ms-lg-0">
-                    {$selector}
                     {$menu}
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#esky-nav" aria-controls="esky-nav"

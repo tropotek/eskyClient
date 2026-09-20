@@ -60,8 +60,9 @@ it holds bearer tokens:
 | `apiUrl` | Optional. REST base, e.g. `http://host:8011`; derived from `url` when unset |
 | `profile` | Optional. Profile to read metrics for; derived from `url` when unset |
 
-The first vault in the list is the default. Switch with the menu at the top
-right; the choice is held in the session, so it does not appear in any url.
+The first vault in the list is the default. Switch from the avatar menu at the
+top right, which names the active vault and ticks it in the list; the choice is
+held in the session, so it does not appear in any url.
 `/settings.php` lists what is configured and probes each vault.
 
 `.env` holds only host-level settings:

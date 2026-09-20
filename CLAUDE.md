@@ -37,8 +37,9 @@ once; the optional `apiUrl` / `profile` fields in `config.json` override that.
 Bootstrap 5.3 supplies the layout and components, in its dark mode, vendored at
 `public/vendor/bootstrap.min.css`. No CDN: this is read on a LAN that need not
 have a route to the internet. Bootstrap's JavaScript bundle is vendored
-alongside the stylesheet, for the navbar's two dropdowns (the settings menu and
-the vault selector) — that is the only thing here that uses it. The detail
+alongside the stylesheet, for the navbar's avatar dropdown — which holds the
+vault list and the page links — and its responsive collapse. That is the only
+thing here that uses it. The detail
 page's tabs remain hidden radio buttons and the vault tooltip remains a native
 `title` attribute; converting them is possible now but has not been done.
 `style.css` keeps the palette and assigns it into Bootstrap's custom properties
