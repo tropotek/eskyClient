@@ -4,11 +4,15 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 
 use Esky\Client;
-use Esky\Config;
 use Esky\EskyException;
+use Esky\Vaults;
 
 try {
-    $client = new Client(Config::fromEnvironment(dirname(__DIR__)));
+    $vaults = Vaults::load(dirname(__DIR__));
+    $vault = $vaults->current($argv[1] ?? null);
+    printf("vault: %s (%s)\n", $vault->title, $vault->url);
+
+    $client = new Client($vault);
 
     $recent = $client->recent(50);
     printf("memory_recent: %d records\n", count($recent));

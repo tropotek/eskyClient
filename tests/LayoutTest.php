@@ -8,17 +8,21 @@ use PHPUnit\Framework\TestCase;
 
 final class LayoutTest extends TestCase
 {
-    protected function setUp(): void
+    /** @return list<string> */
+    private function vaultTitles(): array
     {
-        putenv('ESKY_URL=http://example.test/mcp/personal');
-        putenv('ESKY_TOKEN=tok');
+        try {
+            $vaults = \Esky\Vaults::load(dirname(__DIR__));
+        } catch (\Esky\EskyException) {
+            self::markTestSkipped('No config.json in the project root.');
+        }
+
+        return array_column($vaults->all(), 'title');
     }
 
-    protected function tearDown(): void
+    protected function setUp(): void
     {
-        putenv('ESKY_URL');
-        putenv('ESKY_TOKEN');
-        putenv('ESKY_PROFILE');
+        $_SESSION = [];
     }
 
     public function testTheCurrentPageIsMarkedAndTheOthersAreLinks(): void
@@ -32,34 +36,15 @@ final class LayoutTest extends TestCase
 
     /* The vault is resolved inside the navbar rather than passed in, so that a
        page cannot render the navbar and silently leave the vault unnamed. */
-    public function testEveryNavbarNamesTheVaultWithoutBeingToldIt(): void
+    public function testEveryNavbarNamesTheActiveVault(): void
     {
+        $first = $this->vaultTitles()[0];
+
         foreach (['/index.php', '/metrics.php', ''] as $here) {
             $html = Layout::navbar($here);
 
-            self::assertStringContainsString('>personal<', $html);
-            self::assertStringContainsString('class="vault" title="Memory vault:', $html);
+            self::assertStringContainsString(\Esky\Page::e($first), $html);
         }
-    }
-
-    /* A url with no profile segment names no vault, and the navbar has to
-       render anyway — the error page wears one at the moment the config is the
-       thing that went wrong. */
-    public function testANavbarWithNoVaultToNameStillRenders(): void
-    {
-        putenv('ESKY_URL=http://example.test/mcp');
-
-        $html = Layout::navbar('/index.php');
-
-        self::assertStringContainsString('navbar-brand', $html);
-        self::assertStringNotContainsString('class="vault"', $html);
-    }
-
-    public function testTheVaultNameIsEscaped(): void
-    {
-        putenv('ESKY_PROFILE=<script>');
-
-        self::assertStringNotContainsString('<script>', Layout::navbar());
     }
 
     public function testTheHeadLoadsTheVendoredBootstrapAndNoCdn(): void

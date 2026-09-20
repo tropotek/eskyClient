@@ -4,15 +4,17 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 use Esky\Client;
-use Esky\Config;
 use Esky\EskyException;
 use Esky\Layout;
 use Esky\Page;
+use Esky\Session;
+use Esky\Vaults;
 
 $query = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
 
 try {
-    $client = new Client(Config::fromEnvironment(dirname(__DIR__)));
+    $vault = Vaults::load(dirname(__DIR__))->current(Session::vault());
+    $client = new Client($vault);
     $records = $query === '' ? $client->recent(50) : $client->search($query, 50);
 } catch (EskyException $e) {
     Layout::error($e->getMessage());

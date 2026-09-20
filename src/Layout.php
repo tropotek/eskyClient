@@ -17,7 +17,7 @@ final class Layout
 
     /** What the vault name in the navbar means, for anyone who has not met it. */
     private const VAULT_TIP =
-        'Memory vault: the store these pages read. Derived from ESKY_URL, which the token grants access to.';
+        'Memory vault: the store these pages read. Configured in config.json.';
 
     /**
      * Bootstrap is vendored rather than loaded from a CDN: these pages are read
@@ -66,7 +66,9 @@ final class Layout
         /* A native title attribute rather than Bootstrap's tooltip: that one
            needs Popper and Bootstrap's JavaScript, which these pages do not
            load — the same reason the charts label themselves with <title>. */
-        $vault = self::vault();
+        $vaults = self::vaults();
+        $active = $vaults?->current(Session::vault());
+        $vault = $active?->title ?? '';
         $trailing = $vault === ''
             ? ''
             : sprintf(
@@ -89,16 +91,16 @@ final class Layout
     }
 
     /**
-     * Reading the config costs an environment lookup and no network call, so
-     * the navbar resolves the vault itself. A config that will not load is the
-     * error page's business, not the navbar's — it simply names no vault.
+     * Reading the configuration costs a file read and no network call, so the
+     * navbar resolves the vaults itself. A configuration that will not load is
+     * the error page's business, not the navbar's — it simply names no vault.
      */
-    private static function vault(): string
+    private static function vaults(): ?Vaults
     {
         try {
-            return (string) Config::fromEnvironment(dirname(__DIR__))->profile;
+            return Vaults::load(dirname(__DIR__));
         } catch (EskyException) {
-            return '';
+            return null;
         }
     }
 
