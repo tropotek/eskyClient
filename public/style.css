@@ -199,7 +199,9 @@ h1 { font-size: 1.5rem; }
    nothing on this page is fetched from off the LAN. */
 .user-menu .dropdown-item.active { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
 .user-toggle { padding: 0; border: 0; --bs-btn-bg: transparent; }
-.user-toggle .vault { font-size: .875rem; color: var(--bs-body-color); }
+/* No font-size here: the vault name reads at the same size as the nav
+   links beside it, which is the button's inherited 1rem. */
+.user-toggle .vault { color: var(--bs-body-color); }
 /* Bootstrap sets the caret's offset with vertical-align, which a flex row
    ignores, so the gap is a margin here instead. */
 .user-toggle.dropdown-toggle::after { margin-left: .5rem; color: var(--muted); }

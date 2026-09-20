@@ -18,10 +18,6 @@ final class Layout
     /** The pages the vault selector may return to after a switch. */
     private const SWITCHABLE = ['/index.php', '/metrics.php'];
 
-    /** What the vault name in the navbar means, for anyone who has not met it. */
-    private const VAULT_TIP =
-        'Memory vault: the store these pages read. Configured in config.json.';
-
     /**
      * Bootstrap is vendored rather than loaded from a CDN: these pages are read
      * on a LAN that need not have a route to the internet. Its JavaScript
@@ -109,12 +105,10 @@ final class Layout
             $items .= '<li><hr class="dropdown-divider"></li>';
         }
 
-        $tip = Page::e(self::VAULT_TIP);
-
         $menu = <<<HTML
         <div class="dropdown user-menu">
-            <button class="btn btn-sm user-toggle dropdown-toggle d-flex align-items-center" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" title="{$tip}" aria-label="Menu">
+            <button class="btn user-toggle dropdown-toggle d-flex align-items-center" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu">
                 <img src="/img/user.png" alt="" width="32" height="32" class="rounded-circle">
                 {$name}
             </button>

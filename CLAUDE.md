@@ -40,8 +40,8 @@ have a route to the internet. Bootstrap's JavaScript bundle is vendored
 alongside the stylesheet, for the navbar's avatar dropdown — which holds the
 vault list and the page links — and its responsive collapse. That is the only
 thing here that uses it. The detail
-page's tabs remain hidden radio buttons and the vault tooltip remains a native
-`title` attribute; converting them is possible now but has not been done.
+page's tabs remain hidden radio buttons; converting them is possible now but
+has not been done.
 `style.css` keeps the palette and assigns it into Bootstrap's custom properties
 under `[data-bs-theme="dark"]` — the palette is defined in one place only.
 
