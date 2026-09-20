@@ -56,14 +56,6 @@ h1 { font-size: 1.5rem; }
 
 .navbar-brand { font-weight: 600; }
 
-/* The vault name carries a native title attribute; the dotted underline is
-   what tells a reader there is something to hover. */
-.vault {
-    cursor: help;
-    text-decoration: underline dotted;
-    text-underline-offset: 3px;
-    color: var(--text);
-}
 
 /* A tag is a badge that reads as an outline, not a filled pill. */
 .badge.tag {
@@ -199,8 +191,9 @@ h1 { font-size: 1.5rem; }
    nothing on this page is fetched from off the LAN. */
 .user-menu .dropdown-item.active { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
 .user-toggle { padding: 0; border: 0; --bs-btn-bg: transparent; }
-/* No font-size here: the vault name reads at the same size as the nav
-   links beside it, which is the button's inherited 1rem. */
+/* No font-size here: the vault name reads at the same size as the nav links
+   beside it, which is the button's inherited 1rem. The caret is the only
+   affordance it needs, so no underline and no help cursor. */
 .user-toggle .vault { color: var(--bs-body-color); }
 /* Bootstrap sets the caret's offset with vertical-align, which a flex row
    ignores, so the gap is a margin here instead. */
