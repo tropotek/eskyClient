@@ -99,9 +99,11 @@ a configuration that will not load simply names no vault.
 the loaded file, and falls back to the first vault when it is absent or no
 longer configured. No vault name appears in any URL.
 
-`Vaults::current()` and `vault.php` call `session_start()` themselves, guarded
-by `session_status()`, so no page script has to remember to. The session holds
-the vault name and nothing else.
+A small `Session` class is the only file that touches `$_SESSION`. It starts
+the session when needed, guarded by `session_status()` and skipped under CLI,
+and holds the vault name and nothing else. `Vaults::current()` takes the name
+as an argument rather than reading the session itself, which keeps the loader
+free of request state and testable under CLI.
 
 `public/vault.php` sets the choice:
 
@@ -182,10 +184,14 @@ The suite stays offline; no test opens a socket.
 - `LayoutTest` — the navbar renders both dropdowns, one item per vault, the
   tick on the active vault, and no vault name when the configuration will not
   load.
-- A settings-view test renders the page's table from a fixed probe array,
-  covering a reachable and an unreachable vault.
-- A serving test asserts `config.json` is not exposed, checking the response
-  body rather than the status code.
+- `HealthTest` covers a reachable and an unreachable vault through an injected
+  probe, and asserts the token never leaves it unmasked. The settings page's
+  markup has no automated test — it renders from those rows, and there is no
+  way to fetch it without a socket.
+- `VaultsTest` asserts `config.json` resolves outside `public/`, which is the
+  property that keeps it unserved. A serving test that fetched the file would
+  have to open a socket, which the suite forbids, so the body-versus-status
+  check stays a manual step.
 
 `bin/smoke.php` keeps its live probe and is updated to take a vault name,
 defaulting to the first.
