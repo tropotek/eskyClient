@@ -18,7 +18,7 @@ final class ApiTest extends TestCase
         $this->requested = [];
 
         return new Api(
-            new Config($url, 'tok'),
+            new Config('personal', 'Personal', $url, 'tok'),
             function (string $requestUrl, string $token) use ($status, $body): array {
                 $this->requested[] = $requestUrl;
                 self::assertSame('tok', $token);

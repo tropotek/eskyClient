@@ -1,0 +1,16 @@
+{
+  "vaults": [
+    {
+      "name": "personal",
+      "title": "Personal",
+      "url": "http://host:8011/mcp/personal",
+      "token": "replace-with-your-bearer-token"
+    },
+    {
+      "name": "work",
+      "title": "Work",
+      "url": "http://host:8011/mcp/work",
+      "token": "replace-with-your-bearer-token"
+    }
+  ]
+}

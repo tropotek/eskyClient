@@ -4,14 +4,15 @@ declare(strict_types=1);
 namespace Esky;
 
 /**
- * Reads ESKY_URL and ESKY_TOKEN from the environment, falling back to a .env
- * file in the project directory. The environment takes precedence.
+ * One configured esky vault: the MCP endpoint, the token that opens it, and
+ * the display name the navbar shows.
  *
  * The REST surface (`/api/{profile}/…`, which the metrics page reads) lives on
  * the same host and behind the same token as the MCP endpoint, so both the base
- * and the profile name are derived from ESKY_URL rather than configured twice
- * and left to drift. ESKY_API_URL and ESKY_PROFILE override the derivation for
- * a deployment where that assumption does not hold.
+ * and the profile name are derived from the MCP url rather than configured
+ * twice and left to drift. The optional apiUrl and profile fields in
+ * config.json override the derivation for a deployment where that assumption
+ * does not hold.
  */
 final class Config
 {
@@ -19,6 +20,8 @@ final class Config
     public readonly ?string $profile;
 
     public function __construct(
+        public readonly string $name,
+        public readonly string $title,
         public readonly string $url,
         public readonly string $token,
         ?string $apiBase = null,
@@ -26,35 +29,6 @@ final class Config
     ) {
         $this->apiBase = rtrim($apiBase ?? self::deriveBase($url), '/');
         $this->profile = $profile ?? self::deriveProfile($url);
-    }
-
-    public static function fromEnvironment(string $projectDir): self
-    {
-        $file = [];
-        $path = rtrim($projectDir, '/') . '/.env';
-        if (is_readable($path)) {
-            $parsed = parse_ini_file($path, false, INI_SCANNER_TYPED);
-            if (is_array($parsed)) {
-                $file = $parsed;
-            }
-        }
-
-        $url = self::value('ESKY_URL', $file);
-        $token = self::value('ESKY_TOKEN', $file);
-
-        if ($url === null) {
-            throw new EskyException('Missing required configuration: ESKY_URL');
-        }
-        if ($token === null) {
-            throw new EskyException('Missing required configuration: ESKY_TOKEN');
-        }
-
-        return new self(
-            $url,
-            $token,
-            self::value('ESKY_API_URL', $file),
-            self::value('ESKY_PROFILE', $file),
-        );
     }
 
     /** Scheme, host and port of the MCP url — the REST paths hang off the same root. */
@@ -77,17 +51,5 @@ final class Config
         $last = end($segments);
 
         return is_string($last) && $last !== '' && $last !== 'mcp' ? $last : null;
-    }
-
-    private static function value(string $name, array $file): ?string
-    {
-        $env = getenv($name);
-        if (is_string($env) && $env !== '') {
-            return $env;
-        }
-
-        $val = $file[$name] ?? null;
-
-        return is_string($val) && $val !== '' ? $val : null;
     }
 }
