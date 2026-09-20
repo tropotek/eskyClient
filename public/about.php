@@ -6,10 +6,15 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 use Esky\EskyException;
 use Esky\Layout;
 use Esky\Page;
+use Esky\Session;
 use Esky\Vaults;
 
+/* The active vault is resolved here rather than left to the navbar: resolving
+   it starts the session, and the navbar renders after the first byte has gone
+   out, by which point PHP can no longer send the cookie. */
 try {
     $vaults = Vaults::load(dirname(__DIR__));
+    $active = $vaults->current(Session::vault())->name;
 } catch (EskyException $e) {
     Layout::error($e->getMessage());
 }
@@ -37,6 +42,9 @@ try {
     <?php foreach ($vaults->all() as $vault): ?>
         <li>
             <strong><?= Page::e($vault->title) ?></strong>
+            <?php if ($vault->name === $active): ?>
+                <span class="badge text-bg-secondary">active</span>
+            <?php endif; ?>
             — <code class="small"><?= Page::e($vault->url) ?></code>
         </li>
     <?php endforeach; ?>
