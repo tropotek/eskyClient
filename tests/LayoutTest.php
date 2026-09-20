@@ -82,6 +82,42 @@ final class LayoutTest extends TestCase
         self::assertStringContainsString('href="/about.php"', $html);
     }
 
+    /* Both menus sit at the right-hand end, so both panels align to their
+       toggle rather than spilling off the edge of the viewport. */
+    public function testBothDropdownPanelsAreRightAligned(): void
+    {
+        $this->vaultTitles();
+
+        self::assertSame(2, substr_count(Layout::navbar('/index.php'), 'dropdown-menu-end'));
+    }
+
+    public function testTheUserMenuSitsAfterTheVaultSelector(): void
+    {
+        $this->vaultTitles();
+        $html = Layout::navbar('/index.php');
+
+        self::assertGreaterThan(
+            strpos($html, 'vault-menu'),
+            strpos($html, 'user-menu'),
+            'the user menu should be the last control in the navbar'
+        );
+    }
+
+    /* The nav links collapse behind a toggler below the lg breakpoint, the way
+       a stock Bootstrap navbar does; the vault and user menus stay outside the
+       collapse so they are reachable at every width. */
+    public function testTheNavbarCollapsesOnSmallScreens(): void
+    {
+        $html = Layout::navbar('/index.php');
+
+        self::assertStringContainsString('navbar-expand-lg', $html);
+        self::assertStringContainsString('navbar-toggler', $html);
+        self::assertStringContainsString('data-bs-toggle="collapse"', $html);
+        self::assertStringContainsString('id="esky-nav"', $html);
+        self::assertStringContainsString('data-bs-target="#esky-nav"', $html);
+        self::assertStringContainsString('class="collapse navbar-collapse"', $html);
+    }
+
     /* A configuration that will not load is the error page's business: the
        navbar still has to render, it simply names no vault. */
     public function testANavbarWithNoVaultToNameStillRenders(): void

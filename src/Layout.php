@@ -80,11 +80,26 @@ final class Layout
                 );
         }
 
+        /* Bootstrap's own avatar-dropdown pattern, with a glyph instead of a
+           picture: there is no user behind it — no accounts, no login — so the
+           header names the vault being read rather than a person. */
+        $header = $vaults === null
+            ? ''
+            : sprintf(
+                '<li><h6 class="dropdown-header">%s</h6></li><li><hr class="dropdown-divider"></li>',
+                Page::e($vaults->current(Session::vault())->title)
+            );
+
         $menu = <<<HTML
-        <div class="dropdown me-3">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
-                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu">&#9776;</button>
-            <ul class="dropdown-menu">
+        <div class="dropdown user-menu">
+            <button class="btn btn-sm rounded-circle user-toggle" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu">
+                <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                </svg>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                {$header}
                 <li><a class="dropdown-item" href="/settings.php">Settings</a></li>
                 <li><a class="dropdown-item" href="/about.php">About</a></li>
             </ul>
@@ -122,14 +137,23 @@ final class Layout
         }
 
         return <<<HTML
-        <nav class="navbar navbar-expand bg-body-tertiary border-bottom mb-4">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom mb-4">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-2" href="/index.php">
                     <span aria-hidden="true">🧊</span> Esky
                 </a>
-                {$menu}
-                <ul class="navbar-nav me-auto">{$links}</ul>
-                {$selector}
+                <div class="d-flex align-items-center gap-2 order-lg-last ms-auto ms-lg-0">
+                    {$selector}
+                    {$menu}
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#esky-nav" aria-controls="esky-nav"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse" id="esky-nav">
+                    <ul class="navbar-nav me-auto">{$links}</ul>
+                </div>
             </div>
         </nav>
         HTML;
