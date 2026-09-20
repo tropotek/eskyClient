@@ -4,11 +4,12 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 use Esky\Client;
-use Esky\Config;
 use Esky\EskyException;
 use Esky\Layout;
 use Esky\Markdown;
 use Esky\Page;
+use Esky\Session;
+use Esky\Vaults;
 
 $uid = isset($_GET['uid']) ? trim((string) $_GET['uid']) : '';
 $query = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
@@ -32,7 +33,8 @@ $find = static function (array $records, string $uid): ?array {
 };
 
 try {
-    $client = new Client(Config::fromEnvironment(dirname(__DIR__)));
+    $vault = Vaults::load(dirname(__DIR__))->current(Session::vault());
+    $client = new Client($vault);
 
     $memory = null;
     if ($query !== '') {

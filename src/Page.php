@@ -46,4 +46,16 @@ final class Page
         return $when->setTimezone(new \DateTimeZone(date_default_timezone_get()))
             ->format('Y-m-d H:i');
     }
+
+    /**
+     * A token shown for recognition, not for use: the ends only. Anything too
+     * short to hide meaningfully is hidden completely rather than half
+     * revealed.
+     */
+    public static function mask(string $token): string
+    {
+        return mb_strlen($token) < 12
+            ? '…'
+            : mb_substr($token, 0, 3) . '…' . mb_substr($token, -4);
+    }
 }

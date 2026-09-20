@@ -36,6 +36,15 @@ final class Client
         ]));
     }
 
+    /**
+     * The cheapest call that proves a vault is reachable and the token is
+     * accepted: the handshake alone, with no tools/call behind it.
+     */
+    public function ping(): void
+    {
+        $this->handshake();
+    }
+
     /** @return list<array<string, mixed>> */
     private function call(string $tool, array $arguments): array
     {

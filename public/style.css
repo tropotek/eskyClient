@@ -56,14 +56,6 @@ h1 { font-size: 1.5rem; }
 
 .navbar-brand { font-weight: 600; }
 
-/* The vault name carries a native title attribute; the dotted underline is
-   what tells a reader there is something to hover. */
-.vault {
-    cursor: help;
-    text-decoration: underline dotted;
-    text-underline-offset: 3px;
-    color: var(--text);
-}
 
 /* A tag is a badge that reads as an outline, not a filled pill. */
 .badge.tag {
@@ -190,3 +182,23 @@ h1 { font-size: 1.5rem; }
     .ranked li { grid-template-columns: minmax(0, 1fr) auto; }
     .ranked .bar { grid-column: 1 / -1; }
 }
+
+.health { font-size: .75rem; line-height: 1; }
+.health.ok { color: var(--bs-success); }
+.health.bad { color: var(--bs-danger); }
+
+/* Bootstrap's avatar dropdown. The image is vendored like every other asset:
+   nothing on this page is fetched from off the LAN. */
+.user-menu .dropdown-item.active { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
+.user-toggle { padding: 0; border: 0; --bs-btn-bg: transparent; }
+.navbar .form-control { max-width: 16rem; }
+/* No font-size here: the vault name reads at the same size as the nav links
+   beside it, which is the button's inherited 1rem. The caret is the only
+   affordance it needs, so no underline and no help cursor. */
+.user-toggle .vault { color: var(--bs-body-color); }
+/* Bootstrap sets the caret's offset with vertical-align, which a flex row
+   ignores, so the gap is a margin here instead. */
+.user-toggle.dropdown-toggle::after { margin-left: .5rem; color: var(--muted); }
+.user-toggle img { display: block; opacity: .85; transition: opacity .15s ease-in-out; }
+.user-toggle:hover img, .user-toggle[aria-expanded="true"] img { opacity: 1; }
+.user-toggle:focus-visible { outline: 2px solid var(--bs-focus-ring-color); outline-offset: 2px; }

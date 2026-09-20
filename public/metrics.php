@@ -5,10 +5,11 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 use Esky\Api;
 use Esky\Chart;
-use Esky\Config;
 use Esky\EskyException;
 use Esky\Layout;
 use Esky\Page;
+use Esky\Session;
+use Esky\Vaults;
 
 /** The windows the server's aggregates are cheap at, and a human reads. */
 const WINDOWS = [7, 30, 90];
@@ -19,7 +20,7 @@ if (!in_array($days, WINDOWS, true)) {
 }
 
 try {
-    $config = Config::fromEnvironment(dirname(__DIR__));
+    $config = Vaults::load(dirname(__DIR__))->current(Session::vault());
     $api = new Api($config);
     $summary = $api->querySummary($days);
     $stats = $api->stats($days);
