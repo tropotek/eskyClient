@@ -23,6 +23,7 @@ final class LayoutTest extends TestCase
     protected function setUp(): void
     {
         $_SESSION = [];
+        $_GET = [];
     }
 
     public function testTheCurrentPageIsMarkedAndTheOthersAreLinks(): void
@@ -105,6 +106,47 @@ final class LayoutTest extends TestCase
 
         self::assertSame(1, substr_count($html, 'dropdown-menu-end'));
         self::assertSame(1, substr_count($html, 'data-bs-toggle="dropdown"'));
+    }
+
+    /* The search lives in the navbar so it reaches the list from any page. It
+       always targets the active vault, which is the only vault a page reads. */
+    public function testTheNavbarCarriesTheSearchForm(): void
+    {
+        $html = Layout::navbar('/metrics.php');
+
+        self::assertStringContainsString('role="search"', $html);
+        self::assertStringContainsString('action="/index.php"', $html);
+        self::assertStringContainsString('name="q"', $html);
+    }
+
+    public function testTheSearchBoxPrefillsFromTheQueryString(): void
+    {
+        $_GET['q'] = 'git worktrees';
+
+        self::assertStringContainsString('value="git worktrees"', Layout::navbar('/index.php'));
+    }
+
+    public function testTheSearchBoxEscapesTheQuery(): void
+    {
+        $_GET['q'] = '"><script>alert(1)</script>';
+
+        $html = Layout::navbar('/index.php');
+
+        self::assertStringNotContainsString('<script>', $html);
+        self::assertStringContainsString('&lt;script&gt;', $html);
+    }
+
+    /* The form collapses with the nav links rather than sitting outside them,
+       so a phone shows the brand, the vault and the toggler and nothing else. */
+    public function testTheSearchFormCollapsesWithTheNavLinks(): void
+    {
+        $html = Layout::navbar('/index.php');
+
+        self::assertGreaterThan(
+            strpos($html, 'id="esky-nav"'),
+            strpos($html, 'role="search"'),
+            'the search form should sit inside the collapse'
+        );
     }
 
     /* Bootstrap's own caret, from .dropdown-toggle, so the avatar reads as a

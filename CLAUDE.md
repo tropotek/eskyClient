@@ -79,7 +79,10 @@ self-contained 500 page — it `exit`s, so nothing after it runs).
 
 `Page` holds the helpers that format a record (`e()` for escaping, `preview()`,
 `heading()`, `stamp()`) and `mask()` for a token. `Layout` holds the chrome
-every page wears — `head()`, `navbar()` and `error()`. `Layout::navbar()`
+every page wears — `head()`, `navbar()` and `error()`. The navbar carries the
+search form, so the list is reachable from any page; it reads `q` from the
+query string itself, the same way it resolves the vault from the session, and
+always targets the active vault because a page only ever reads one. `Layout::navbar()`
 resolves the vaults itself rather than taking them as an argument, so a page
 cannot render the navbar and leave the vault unnamed; `navbarFor()` takes them
 explicitly so the markup can be tested against a configuration held in memory.

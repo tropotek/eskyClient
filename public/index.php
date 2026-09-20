@@ -28,17 +28,12 @@ try {
 <main class="container pb-5">
     <h1>Memories</h1>
 
-    <form class="d-flex gap-2 align-items-center mb-3" method="get" action="/index.php">
-        <input class="form-control" type="search" name="q" value="<?= Page::e($query) ?>" placeholder="Search memories…" aria-label="Search memories">
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
-        <?php if ($query !== ''): ?>
-            <a class="small" href="/index.php">Clear</a>
-        <?php endif; ?>
-    </form>
-
     <p class="text-body-secondary small">
         <?= count($records) ?> <?= count($records) === 1 ? 'memory' : 'memories' ?>
         <?= $query === '' ? 'most recently updated' : 'matching ' . Page::e($query) ?>
+        <?php if ($query !== ''): ?>
+            — <a href="/index.php">clear the search</a>
+        <?php endif; ?>
     </p>
 
     <?php if ($records === []): ?>

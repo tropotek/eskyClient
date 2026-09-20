@@ -81,6 +81,19 @@ final class Layout
            avatar-dropdown pattern, with the same placeholder tk8base serves.
            There is no user behind it — no accounts, no login — so the name
            beside the avatar is the vault being read, not a person. */
+        /* The search reaches the list from any page, and always targets the
+           active vault, because a page only ever reads one. The query is read
+           here rather than passed in, the same way the vault is. */
+        $q = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
+        $search = sprintf(
+            '<form class="d-flex flex-grow-1 gap-2" role="search" method="get" action="/index.php">'
+            . '<input class="form-control form-control-sm" type="search" name="q" value="%s"'
+            . ' placeholder="Search memories…" aria-label="Search memories">'
+            . '<button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>'
+            . '</form>',
+            Page::e($q)
+        );
+
         $items = '';
         $name = '';
         if ($vaults !== null) {
@@ -135,7 +148,8 @@ final class Layout
                     </button>
                 </div>
                 <div class="collapse navbar-collapse" id="esky-nav">
-                    <ul class="navbar-nav me-auto">{$links}</ul>
+                    <ul class="navbar-nav me-3">{$links}</ul>
+                    {$search}
                 </div>
             </div>
         </nav>
