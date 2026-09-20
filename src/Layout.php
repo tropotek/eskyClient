@@ -81,8 +81,9 @@ final class Layout
         }
 
         /* Bootstrap's own avatar-dropdown pattern, with a glyph instead of a
-           picture: there is no user behind it — no accounts, no login — so the
-           header names the vault being read rather than a person. */
+           same placeholder avatar tk8base uses. There is no user behind it —
+           no accounts, no login — so the header names the vault being read
+           rather than a person. */
         $header = $vaults === null
             ? ''
             : sprintf(
@@ -92,11 +93,9 @@ final class Layout
 
         $menu = <<<HTML
         <div class="dropdown user-menu">
-            <button class="btn btn-sm rounded-circle user-toggle" type="button"
+            <button class="btn btn-sm user-toggle" type="button"
                     data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu">
-                <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
-                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                </svg>
+                <img src="/img/user.png" alt="" width="32" height="32" class="rounded-circle">
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 {$header}

@@ -196,13 +196,9 @@ h1 { font-size: 1.5rem; }
 .health.ok { color: var(--bs-success); }
 .health.bad { color: var(--bs-danger); }
 
-/* Bootstrap's avatar dropdown, drawn rather than fetched: the circle is the
-   button itself, since no picture can be loaded on an offline LAN. */
-.user-toggle {
-    width: 32px; height: 32px; padding: 0;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--bs-body-color);
-    border: 1px solid var(--bs-border-color);
-    background: var(--bs-tertiary-bg);
-}
-.user-toggle:hover, .user-toggle[aria-expanded="true"] { background: var(--bs-secondary-bg); }
+/* Bootstrap's avatar dropdown. The image is vendored like every other asset:
+   nothing on this page is fetched from off the LAN. */
+.user-toggle { padding: 0; border: 0; line-height: 0; --bs-btn-bg: transparent; }
+.user-toggle img { display: block; opacity: .85; transition: opacity .15s ease-in-out; }
+.user-toggle:hover img, .user-toggle[aria-expanded="true"] img { opacity: 1; }
+.user-toggle:focus-visible { outline: 2px solid var(--bs-focus-ring-color); outline-offset: 2px; }

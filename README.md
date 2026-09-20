@@ -77,7 +77,8 @@ right; the choice is held in the session, so it does not appear in any url.
                 Api, Health, Chart, Markdown, Page, Layout
     public/     index.php (list and search), view.php (detail),
                 metrics.php (charts), settings.php, about.php, vault.php,
-                style.css, vendor/bootstrap.min.css, vendor/bootstrap.bundle.min.js
+                style.css, img/user.png, vendor/bootstrap.min.css,
+                vendor/bootstrap.bundle.min.js
     bin/        smoke.php, a live check against the server
     tests/      PHPUnit unit tests
 

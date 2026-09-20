@@ -82,6 +82,18 @@ final class LayoutTest extends TestCase
         self::assertStringContainsString('href="/about.php"', $html);
     }
 
+    /* The avatar is the same placeholder tk8base uses, vendored like every
+       other asset here — nothing is fetched from off the LAN. */
+    public function testTheUserMenuShowsAVendoredAvatar(): void
+    {
+        $html = Layout::navbar('/index.php');
+
+        self::assertStringContainsString('src="/img/user.png"', $html);
+        self::assertStringContainsString('rounded-circle', $html);
+        self::assertStringNotContainsString('//cdn', $html);
+        self::assertFileExists(dirname(__DIR__) . '/public/img/user.png');
+    }
+
     /* Both menus sit at the right-hand end, so both panels align to their
        toggle rather than spilling off the edge of the viewport. */
     public function testBothDropdownPanelsAreRightAligned(): void
