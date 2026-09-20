@@ -36,4 +36,23 @@ final class PageTest extends TestCase
         self::assertSame('', Page::stamp(null));
         self::assertSame('not a date', Page::stamp('not a date'));
     }
+
+    /* Tokens are shown on the settings page so an operator can tell which one
+       a vault is using, without the page handing the whole secret to anyone
+       who can reach the port. */
+    public function testALongTokenKeepsItsEndsOnly(): void
+    {
+        self::assertSame('sk-…f3a2', Page::mask('sk-personal-0000f3a2'));
+    }
+
+    public function testAShortTokenIsHiddenEntirely(): void
+    {
+        self::assertSame('…', Page::mask('short'));
+        self::assertSame('…', Page::mask('elevenchars'));
+    }
+
+    public function testAnEmptyTokenIsHiddenEntirely(): void
+    {
+        self::assertSame('…', Page::mask(''));
+    }
 }
