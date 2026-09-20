@@ -107,6 +107,14 @@ final class LayoutTest extends TestCase
         self::assertSame(1, substr_count($html, 'data-bs-toggle="dropdown"'));
     }
 
+    /* Bootstrap's own caret, from .dropdown-toggle, so the avatar reads as a
+       menu rather than a button. It stays visible when the vault name is
+       hidden at phone widths. */
+    public function testTheAvatarCarriesADropdownCaret(): void
+    {
+        self::assertStringContainsString('user-toggle dropdown-toggle', Layout::navbar('/index.php'));
+    }
+
     /* The vaults head the menu, above the pages. */
     public function testTheVaultsSitAboveThePagesInTheMenu(): void
     {

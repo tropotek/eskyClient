@@ -113,7 +113,7 @@ final class Layout
 
         $menu = <<<HTML
         <div class="dropdown user-menu">
-            <button class="btn btn-sm user-toggle d-flex align-items-center" type="button"
+            <button class="btn btn-sm user-toggle dropdown-toggle d-flex align-items-center" type="button"
                     data-bs-toggle="dropdown" aria-expanded="false" title="{$tip}" aria-label="Menu">
                 <img src="/img/user.png" alt="" width="32" height="32" class="rounded-circle">
                 {$name}
