@@ -86,10 +86,10 @@ final class Layout
            here rather than passed in, the same way the vault is. */
         $q = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
         $search = sprintf(
-            '<form class="d-flex flex-grow-1 gap-2" role="search" method="get" action="/index.php">'
-            . '<input class="form-control form-control-sm" type="search" name="q" value="%s"'
-            . ' placeholder="Search memories…" aria-label="Search memories">'
-            . '<button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>'
+            '<form class="d-flex" role="search" method="get" action="/index.php">'
+            . '<input class="form-control me-2" type="search" name="q" value="%s"'
+            . ' placeholder="Search" aria-label="Search memories">'
+            . '<button class="btn btn-outline-secondary" type="submit">Search</button>'
             . '</form>',
             Page::e($q)
         );
@@ -148,7 +148,7 @@ final class Layout
                     </button>
                 </div>
                 <div class="collapse navbar-collapse" id="esky-nav">
-                    <ul class="navbar-nav me-3">{$links}</ul>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">{$links}</ul>
                     {$search}
                 </div>
             </div>

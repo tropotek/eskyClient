@@ -191,6 +191,7 @@ h1 { font-size: 1.5rem; }
    nothing on this page is fetched from off the LAN. */
 .user-menu .dropdown-item.active { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
 .user-toggle { padding: 0; border: 0; --bs-btn-bg: transparent; }
+.navbar .form-control { max-width: 16rem; }
 /* No font-size here: the vault name reads at the same size as the nav links
    beside it, which is the button's inherited 1rem. The caret is the only
    affordance it needs, so no underline and no help cursor. */
