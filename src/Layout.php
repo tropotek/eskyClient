@@ -15,6 +15,9 @@ final class Layout
         '/metrics.php' => 'Metrics',
     ];
 
+    /** The pages the vault selector may return to after a switch. */
+    private const SWITCHABLE = ['/index.php', '/metrics.php'];
+
     /** What the vault name in the navbar means, for anyone who has not met it. */
     private const VAULT_TIP =
         'Memory vault: the store these pages read. Configured in config.json.';
@@ -47,10 +50,21 @@ final class Layout
      * repeat it. $here is the href of the page being shown, when it is one of
      * the navigable ones.
      *
-     * The vault name is resolved here rather than passed in, so a page cannot
-     * render the navbar without it.
+     * The vaults are resolved here rather than passed in, so a page cannot
+     * render the navbar without naming the one it is reading.
      */
     public static function navbar(string $here = ''): string
+    {
+        return self::navbarFor(self::vaults(), $here);
+    }
+
+    /**
+     * $vaults is null when the configuration will not load, which is the error
+     * page's case: the chrome still renders, it simply names no vault. Taking
+     * them as an argument is also what lets the markup be tested against a
+     * configuration held in memory, with no file on disk.
+     */
+    public static function navbarFor(?Vaults $vaults, string $here = ''): string
     {
         $links = '';
         foreach (self::NAV as $href => $label) {
@@ -66,19 +80,46 @@ final class Layout
                 );
         }
 
-        /* A native title attribute rather than Bootstrap's tooltip: that one
-           needs Popper and Bootstrap's JavaScript, which these pages do not
-           load — the same reason the charts label themselves with <title>. */
-        $vaults = self::vaults();
-        $active = $vaults?->current(Session::vault());
-        $vault = $active?->title ?? '';
-        $trailing = $vault === ''
-            ? ''
-            : sprintf(
-                '<span class="navbar-text small"><strong class="vault" title="%s">%s</strong></span>',
+        $menu = <<<HTML
+        <div class="dropdown me-3">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu">&#9776;</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/settings.php">Settings</a></li>
+                <li><a class="dropdown-item" href="/about.php">About</a></li>
+            </ul>
+        </div>
+        HTML;
+
+        $selector = '';
+        if ($vaults !== null) {
+            $active = $vaults->current(Session::vault());
+            $back = self::backTarget($here);
+
+            $items = '';
+            foreach ($vaults->all() as $vault) {
+                $items .= sprintf(
+                    '<li><a class="dropdown-item%s" href="/vault.php?to=%s&amp;back=%s">%s%s</a></li>',
+                    $vault->name === $active->name ? ' active' : '',
+                    Page::e(rawurlencode($vault->name)),
+                    Page::e(rawurlencode($back)),
+                    Page::e($vault->title),
+                    $vault->name === $active->name ? ' &#10003;' : ''
+                );
+            }
+
+            /* A native title attribute rather than Bootstrap's tooltip: that
+               one needs Popper as well, and nothing else here would use it. */
+            $selector = sprintf(
+                '<div class="dropdown vault-menu">'
+                . '<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"'
+                . ' data-bs-toggle="dropdown" aria-expanded="false" title="%s">%s</button>'
+                . '<ul class="dropdown-menu dropdown-menu-end">%s</ul></div>',
                 Page::e(self::VAULT_TIP),
-                Page::e($vault)
+                Page::e($active->title),
+                $items
             );
+        }
 
         return <<<HTML
         <nav class="navbar navbar-expand bg-body-tertiary border-bottom mb-4">
@@ -86,11 +127,22 @@ final class Layout
                 <a class="navbar-brand d-flex align-items-center gap-2" href="/index.php">
                     <span aria-hidden="true">🧊</span> Esky
                 </a>
+                {$menu}
                 <ul class="navbar-nav me-auto">{$links}</ul>
-                {$trailing}
+                {$selector}
             </div>
         </nav>
         HTML;
+    }
+
+    /**
+     * back comes off the query string, so only the pages a switch makes sense
+     * on are honoured. Anything else — including a detail page, whose uid
+     * belongs to one vault — lands on the list.
+     */
+    public static function backTarget(?string $raw): string
+    {
+        return in_array($raw, self::SWITCHABLE, true) ? $raw : '/index.php';
     }
 
     /**

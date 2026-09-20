@@ -190,3 +190,5 @@ h1 { font-size: 1.5rem; }
     .ranked li { grid-template-columns: minmax(0, 1fr) auto; }
     .ranked .bar { grid-column: 1 / -1; }
 }
+
+.vault-menu .dropdown-item.active { background: var(--bs-secondary-bg); color: var(--bs-body-color); }
