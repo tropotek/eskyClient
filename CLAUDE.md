@@ -14,11 +14,12 @@ Everything runs in the container; PHP is not expected on the host.
     docker compose run --rm app vendor/bin/phpunit tests/PageTest.php     # one file
     docker compose run --rm app vendor/bin/phpunit --filter testStampShowsTheDateAndA24HourTime
 
-    docker compose run --rm app php bin/smoke.php         # live check against the esky server
+    docker compose run --rm app php bin/smoke.php         # live check, first vault
+    docker compose run --rm app php bin/smoke.php work    # live check, a named vault
 
-`bin/smoke.php` (live connectivity probe) hits the real server and needs a valid
-`ESKY_TOKEN`; the PHPUnit suite is offline-only and must stay that way — no test
-may open a socket.
+`bin/smoke.php` (live connectivity probe) hits the real server and needs a
+working vault in `config.json`; the PHPUnit suite is offline-only and must stay
+that way — no test may open a socket.
 
 ## Architecture
 
@@ -30,8 +31,8 @@ memory) and `public/metrics.php` (charts). PSR-4 `Esky\` → `src/`.
 (`Client`); `metrics.php` reads the REST surface (`Api`), because the aggregates
 it charts are not MCP tools — they are for a human reviewing the store, and every
 tool description costs context in every agent session. `Config` derives the REST
-base and the profile name from `ESKY_URL` so the two are configured once;
-`ESKY_API_URL` / `ESKY_PROFILE` override that.
+base and the profile name from the vault's MCP url so the two are configured
+once; the optional `apiUrl` / `profile` fields in `config.json` override that.
 
 Bootstrap 5.3 supplies the layout and components, in its dark mode, vendored at
 `public/vendor/bootstrap.min.css`. No CDN: this is read on a LAN that need not
@@ -64,17 +65,33 @@ The transport is a layered decode, and each layer has its own unit test:
 `Client::sorted()` re-sorts every result by `updated_at` descending, because the
 server does not guarantee order.
 
-`Config::fromEnvironment()` reads `ESKY_URL` / `ESKY_TOKEN` from the environment
-first, then falls back to `.env` in the project root. Missing values throw
+`Vaults::load()` reads `config.json` from the project root — a git-ignored file
+holding one entry per esky vault — and hands out a `Config` per vault, so
+`Client` and `Api` still take a single `Config` and know nothing about vaults.
+Vaults are configured in a file rather than through the app because the app has
+no users and no authentication: a form storing bearer tokens would be writable
+by anyone who could reach the port. `Session` is the only file that touches
+`$_SESSION`; it holds the active vault's name and nothing else, which keeps
+`Vaults` testable under CLI. A missing or malformed file throws
 `EskyException`, which the page scripts catch and hand to `Layout::error()` (a
 self-contained 500 page — it `exit`s, so nothing after it runs).
 
 `Page` holds the helpers that format a record (`e()` for escaping, `preview()`,
-`heading()`, `stamp()`). `Layout` holds the chrome every page wears — `head()`,
-`navbar()` and `error()`. `Layout::navbar()` resolves the vault name from
-`Config` itself rather than taking it as an argument, so a page cannot render
-the navbar and leave the vault unnamed; a config that will not load simply names
-no vault, which is what the error page needs.
+`heading()`, `stamp()`) and `mask()` for a token. `Layout` holds the chrome
+every page wears — `head()`, `navbar()` and `error()`. `Layout::navbar()`
+resolves the vaults itself rather than taking them as an argument, so a page
+cannot render the navbar and leave the vault unnamed; `navbarFor()` takes them
+explicitly so the markup can be tested against a configuration held in memory.
+A configuration that will not load simply names no vault, which is what the
+error page needs. `vault.php` writes the session and redirects — the chosen
+vault never appears in a url, and `Layout::backTarget()` whitelists where a
+switch may return to.
+
+`Health::check()` reduces each vault to a row for the settings page, masking the
+token with `Page::mask()` so no caller can render one whole by accident. Its
+probe is injectable for the same reason `Api`'s transport is — the suite may not
+open a socket. `Client::ping()` is the probe itself: the handshake alone, no
+`tools/call`.
 
 `Markdown::toHtml()` uses GitHub-Flavored CommonMark with `html_input => escape` — memory text is untrusted, so raw HTML in a memory
 must never be passed through.

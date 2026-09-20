@@ -21,9 +21,10 @@ in the container.
 ## Setup
 
     cp .env.example .env
+    cp config.json.example config.json
 
-Set `ESKY_TOKEN` in `.env` to your esky bearer token, and `ESKY_URL` to the
-server's MCP endpoint. Then:
+Put your esky vaults in `config.json` — one entry per memory server, each with
+its MCP endpoint and bearer token. Then:
 
     docker compose build
     docker compose run --rm app composer install
@@ -34,21 +35,49 @@ in `.env` to move it.
 
 ## Configuration
 
+Vaults live in `config.json` in the project root, which is git-ignored because
+it holds bearer tokens:
+
+```json
+{
+  "vaults": [
+    {
+      "name": "personal",
+      "title": "Personal",
+      "url": "http://host:8011/mcp/personal",
+      "token": "…"
+    }
+  ]
+}
+```
+
+| Field | Purpose |
+|---|---|
+| `name` | Slug held in the session and used in the switch links. Lowercase letters, digits, `-` and `_` |
+| `title` | The label the navbar and settings page show |
+| `url` | esky MCP endpoint, e.g. `http://host:8011/mcp/personal` |
+| `token` | Bearer token, without the `Bearer ` prefix |
+| `apiUrl` | Optional. REST base, e.g. `http://host:8011`; derived from `url` when unset |
+| `profile` | Optional. Profile to read metrics for; derived from `url` when unset |
+
+The first vault in the list is the default. Switch with the menu at the top
+right; the choice is held in the session, so it does not appear in any url.
+`/settings.php` lists what is configured and probes each vault.
+
+`.env` holds only host-level settings:
+
 | Variable | Purpose |
 |---|---|
-| `ESKY_URL` | esky MCP endpoint, e.g. `http://host:8011/mcp/personal` |
-| `ESKY_TOKEN` | Bearer token, without the `Bearer ` prefix |
 | `HTTP_APP_PORT` | Host port to publish, default `8080` |
-| `ESKY_API_URL` | Optional. REST base, e.g. `http://host:8011`; derived from `ESKY_URL` when unset |
-| `ESKY_PROFILE` | Optional. Profile to read metrics for; derived from `ESKY_URL` when unset |
 | `UID` / `GID` | Container user ids, match your host user so bind-mounted files stay editable |
 
 ## Layout
 
-    src/        Config, SseParser, ResponseDecoder, Client, Api, Chart, Markdown,
-                Page, Layout
+    src/        Config, Vaults, Session, SseParser, ResponseDecoder, Client,
+                Api, Health, Chart, Markdown, Page, Layout
     public/     index.php (list and search), view.php (detail),
-                metrics.php (charts), style.css, vendor/bootstrap.min.css
+                metrics.php (charts), settings.php, about.php, vault.php,
+                style.css, vendor/bootstrap.min.css, vendor/bootstrap.bundle.min.js
     bin/        smoke.php, a live check against the server
     tests/      PHPUnit unit tests
 
@@ -64,7 +93,8 @@ Run the unit tests:
 
 Check connectivity to the live server:
 
-    docker compose run --rm app php bin/smoke.php
+    docker compose run --rm app php bin/smoke.php          # the first vault
+    docker compose run --rm app php bin/smoke.php work     # a named vault
 
 ## Metrics
 
@@ -75,8 +105,8 @@ store's own growth, retirement, kind mix and tags.
 
 It reads esky's REST surface (`/api/{profile}/queries/summary` and
 `/api/{profile}/stats`) rather than MCP, with the same bearer token. The base URL
-and profile are derived from `ESKY_URL`, so an `ESKY_URL` without a
-`/mcp/{profile}` path needs `ESKY_PROFILE` set. The server must be new enough to
+and profile are derived from the vault's `url`, so a `url` without a
+`/mcp/{profile}` path needs `profile` set on that vault. The server must be new enough to
 serve those two endpoints.
 
 Charts are server-rendered inline SVG — no JavaScript and no CDN, so the page
