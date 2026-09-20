@@ -139,7 +139,7 @@ final class Layout
                 <a class="navbar-brand d-flex align-items-center gap-2" href="/index.php">
                     <span aria-hidden="true">🧊</span> Esky
                 </a>
-                <div class="d-flex align-items-center gap-2 order-lg-last ms-auto ms-lg-0">
+                <div class="d-flex align-items-center gap-2 order-lg-last ms-auto ms-lg-3">
                     {$menu}
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#esky-nav" aria-controls="esky-nav"
