@@ -99,6 +99,10 @@ a configuration that will not load simply names no vault.
 the loaded file, and falls back to the first vault when it is absent or no
 longer configured. No vault name appears in any URL.
 
+`Vaults::current()` and `vault.php` call `session_start()` themselves, guarded
+by `session_status()`, so no page script has to remember to. The session holds
+the vault name and nothing else.
+
 `public/vault.php` sets the choice:
 
 ```
@@ -192,10 +196,10 @@ One logical layer per commit, in this order:
 
 1. `feat: load several vaults from config.json` — `Vaults`, `Config` changes,
    `config.json.example`, `.gitignore`, tests.
-2. `feat: select the active vault from the navbar` — `vault.php`, session
+2. `build: vendor Bootstrap's JavaScript bundle` — the file, plus the CLAUDE.md
+   note recording the reversal. Before the navbar, which depends on it.
+3. `feat: select the active vault from the navbar` — `vault.php`, session
    resolution, navbar dropdowns.
-3. `build: vendor Bootstrap's JavaScript bundle` — the file, plus the CLAUDE.md
-   note recording the reversal.
 4. `feat: add settings and about pages` — `Client::ping()`, `Page::mask()`,
    both pages, tests.
 5. `docs: describe the vault configuration` — CLAUDE.md and README.
