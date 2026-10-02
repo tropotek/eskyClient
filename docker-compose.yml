@@ -1,3 +1,5 @@
+name: eskyClient
+
 services:
   app:
     build:
