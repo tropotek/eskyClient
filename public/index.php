@@ -28,6 +28,10 @@ try {
 <main class="container pb-5">
     <h1>Memories</h1>
 
+    <?php if (isset($_GET['forgotten'])): ?>
+        <div class="alert alert-success" role="alert">Memory forgotten. It no longer appears in searches.</div>
+    <?php endif; ?>
+
     <p class="text-body-secondary small">
         <?= count($records) ?> <?= count($records) === 1 ? 'memory' : 'memories' ?>
         <?= $query === '' ? 'most recently updated' : 'matching ' . Page::e($query) ?>

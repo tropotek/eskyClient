@@ -54,6 +54,9 @@ $text = (string) ($memory['text'] ?? '');
 <?php else: ?>
     <h1><?= Page::e(Page::heading($memory)) ?></h1>
     <p class="text-body-secondary small"><?= Page::e((string) ($memory['kind'] ?? '')) ?> &middot; updated <?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></p>
+    <?php if (empty($memory['retired_at'])): ?>
+        <a class="btn btn-sm btn-outline-danger" href="/forget.php?uid=<?= Page::e(rawurlencode((string) $memory['uid'])) ?>">Forget</a>
+    <?php endif; ?>
 
     <!-- Content left, metadata in a fixed-width right column. -->
     <div class="row g-3 mt-2 align-items-start">
