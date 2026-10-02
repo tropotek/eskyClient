@@ -82,7 +82,7 @@ try {
                         <span class="badge rounded-pill tag"><?= Page::e((string) $tag) ?></span>
                     <?php endforeach; ?>
                     </p>
-                    <time class="meta text-nowrap text-body-secondary ms-auto" title="Last updated"><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
+                    <time class="small text-nowrap text-body-secondary ms-auto" title="Last updated"><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
                 </div>
             </div>
         </li>
