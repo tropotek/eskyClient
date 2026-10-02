@@ -67,8 +67,12 @@ try {
                 <a class="card-link-row d-flex justify-content-between align-items-baseline gap-3" href="<?= Page::e($href) ?>">
                     <span class="title"><?= Page::e(Page::heading($record)) ?></span>
                     <span class="d-flex align-items-baseline gap-2 text-nowrap text-body-secondary small">
-                        <span><?= Page::e((string) ($record['kind'] ?? '')) ?></span>
-                        <time><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
+                        <span class="badge kind"><?= Page::e((string) ($record['kind'] ?? '')) ?></span>
+                        <?php $score = $query === '' ? '' : Page::score($record['score'] ?? null); ?>
+                        <?php if ($score !== ''): ?>
+                            <span class="score" title="Rank score: compare within this search only"><?= Page::e($score) ?></span>
+                        <?php endif; ?>
+                        <time class="meta-time"><?= Page::e(Page::stamp((string) ($record['updated_at'] ?? ''))) ?></time>
                     </span>
                 </a>
                 <p class="mt-2 mb-0"><?= Page::e(Page::preview((string) ($record['text'] ?? ''))) ?></p>

@@ -65,6 +65,17 @@ h1 { font-size: 1.5rem; }
     font-weight: 400;
 }
 
+/* The kind is a filled, square-cornered badge so it cannot be mistaken for a
+   tag (an outlined pill) or run into the date beside it. */
+.badge.kind {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border-radius: .25rem;
+    font-weight: 500;
+}
+.score { font-family: var(--bs-font-monospace); font-size: .75rem; }
+.meta-time { border-left: 1px solid var(--line); padding-left: .6rem; }
+
 .card-link-row { text-decoration: none; }
 .card-link-row:hover .title { text-decoration: underline; }
 .card-link-row .title { font-weight: 600; color: var(--accent); }

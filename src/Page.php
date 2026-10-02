@@ -65,6 +65,15 @@ final class Page
     }
 
     /**
+     * The search score, or blank when the server sent none. It is a rank
+     * value, meaningful only against the other results of the same search.
+     */
+    public static function score(mixed $value): string
+    {
+        return is_int($value) || is_float($value) ? sprintf('%.3f', $value) : '';
+    }
+
+    /**
      * Request input read as text. $_GET and $_POST can hold arrays, and casting
      * one to a string raises a warning, so anything but a string reads as blank.
      */
