@@ -23,9 +23,10 @@ that way — no test may open a socket.
 
 ## Architecture
 
-A read-only web UI over the esky memory server. Three request paths, no router,
-no framework: `public/index.php` (list + search), `public/view.php` (single
-memory) and `public/metrics.php` (charts). PSR-4 `Esky\` → `src/`.
+A web UI over the esky memory server, read-only apart from forgetting a memory.
+Four request paths, no router, no framework: `public/index.php` (list +
+search), `public/view.php` (single memory), `public/forget.php` (confirm and
+forget) and `public/metrics.php` (charts). PSR-4 `Esky\` → `src/`.
 
 **Two transports, deliberately.** The memory pages speak MCP over HTTP
 (`Client`); `metrics.php` reads the REST surface (`Api`), because the aggregates
@@ -72,10 +73,10 @@ holding one entry per esky vault — and hands out a `Config` per vault, so
 Vaults are configured in a file rather than through the app because the app has
 no users and no authentication: a form storing bearer tokens would be writable
 by anyone who could reach the port. `Session` is the only file that touches
-`$_SESSION`; it holds the active vault's name and nothing else, which keeps
+`$_SESSION`; it holds the active vault's name and the CSRF token, nothing else, which keeps
 `Vaults` testable under CLI. A missing or malformed file throws
 `EskyException`, which the page scripts catch and hand to `Layout::error()` (a
-self-contained 500 page — it `exit`s, so nothing after it runs).
+self-contained error page, 500 unless a status is given — it `exit`s, so nothing after it runs).
 
 `Page` holds the helpers that format a record (`e()` for escaping, `preview()`,
 `heading()`, `stamp()`) and `mask()` for a token. `Layout` holds the chrome
@@ -91,6 +92,12 @@ error page needs. `vault.php` writes the session and redirects — the chosen
 vault never appears in a url, and `Layout::backTarget()` whitelists where a
 switch may return to.
 
+`forget.php` is the only write. GET renders a confirm page and changes nothing;
+the POST is checked by `Csrf` (one random token per session, held by `Session`)
+before `Client::forget()` calls `memory_forget`, which hides a memory but keeps
+it on the server. `Stats` summarises a search's results into the badge strip
+above the list; it is pure, so it needs no server.
+
 `Health::check()` reduces each vault to a row for the settings page, masking the
 token with `Page::mask()` so no caller can render one whole by accident. Its
 probe is injectable for the same reason `Api`'s transport is — the suite may not
@@ -102,8 +109,9 @@ must never be passed through.
 
 ## Constraints of the esky API
 
-- Only `memory_recent` and `memory_search` are called. The app never writes,
-  updates or retires a memory; keep it that way.
+- `memory_recent` and `memory_search` read. The only write is `memory_forget`,
+  called from `public/forget.php` behind a CSRF token and a confirm page. The
+  app never writes or updates a memory; keep it that way.
 - `memory_search` is **semantic, not literal** — a nonsense query still returns
   its nearest matches, so an empty result is not a reliable "no match" signal.
 - There is **no get-by-uid tool**, and a uid-shaped search returns nothing. So

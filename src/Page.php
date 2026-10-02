@@ -48,6 +48,49 @@ final class Page
     }
 
     /**
+     * esky has no get-by-uid tool, so a record is located by filtering a list
+     * the caller already pulled.
+     *
+     * @param list<array<string, mixed>> $records
+     */
+    public static function find(array $records, string $uid): ?array
+    {
+        foreach ($records as $record) {
+            if (($record['uid'] ?? null) === $uid) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The search score, or blank when the server sent none. It is a rank
+     * value, meaningful only against the other results of the same search.
+     */
+    public static function score(mixed $value): string
+    {
+        return is_int($value) || is_float($value) ? sprintf('%.3f', $value) : '';
+    }
+
+    /**
+     * Request input read as text. $_GET and $_POST can hold arrays, and casting
+     * one to a string raises a warning, so anything but a string reads as blank.
+     */
+    public static function input(mixed $value): string
+    {
+        return is_string($value) ? trim($value) : '';
+    }
+
+    /** The optional note sent with a forget: trimmed, capped, null when blank. */
+    public static function reason(string $raw, int $max = 500): ?string
+    {
+        $text = trim($raw);
+
+        return $text === '' ? null : mb_substr($text, 0, $max);
+    }
+
+    /**
      * A token shown for recognition, not for use: the ends only. Anything too
      * short to hide meaningfully is hidden completely rather than half
      * revealed.

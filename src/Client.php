@@ -14,10 +14,17 @@ final class Client
     private ?string $sessionId = null;
     private int $nextId = 1;
 
+    /** @var \Closure(array, ?string): array{body: string, sessionId: ?string} */
+    private readonly \Closure $transport;
+
     public function __construct(
         private readonly Config $config,
         private readonly int $timeout = 30,
+        ?\Closure $transport = null,
     ) {
+        // Injectable so the suite can exercise the protocol without a socket,
+        // the same way Api's transport is.
+        $this->transport = $transport ?? $this->curl(...);
     }
 
     /** @return list<array<string, mixed>> */
@@ -37,6 +44,18 @@ final class Client
     }
 
     /**
+     * esky has no get-by-uid tool, so a memory is found by filtering a large
+     * list: the search that led to it first (it may not be among the most
+     * recent), then the recent list. Only works because the store is small.
+     */
+    public function find(string $uid, string $query = ''): ?array
+    {
+        $memory = $query === '' ? null : Page::find($this->search($query, 500), $uid);
+
+        return $memory ?? Page::find($this->recent(500), $uid);
+    }
+
+    /**
      * The cheapest call that proves a vault is reachable and the token is
      * accepted: the handshake alone, with no tools/call behind it.
      */
@@ -45,8 +64,23 @@ final class Client
         $this->handshake();
     }
 
+    /**
+     * Retires a memory. esky keeps it, so this hides rather than destroys;
+     * the reason is recorded server-side.
+     */
+    public function forget(string $uid, ?string $reason): void
+    {
+        ResponseDecoder::acknowledge($this->request('memory_forget', ['uid' => $uid, 'reason' => $reason]));
+    }
+
     /** @return list<array<string, mixed>> */
     private function call(string $tool, array $arguments): array
+    {
+        return ResponseDecoder::records($this->request($tool, $arguments));
+    }
+
+    /** @return array<string, mixed> the first SSE message of the reply */
+    private function request(string $tool, array $arguments): array
     {
         $this->handshake();
 
@@ -62,7 +96,7 @@ final class Client
             throw new EskyException('Esky returned no parsable message for ' . $tool);
         }
 
-        return ResponseDecoder::records($messages[0]);
+        return $messages[0];
     }
 
     private function handshake(): void
@@ -94,13 +128,19 @@ final class Client
     /** @return array{body: string, sessionId: ?string} */
     private function post(array $payload): array
     {
+        return ($this->transport)($payload, $this->sessionId);
+    }
+
+    /** @return array{body: string, sessionId: ?string} */
+    private function curl(array $payload, ?string $sessionId): array
+    {
         $headers = [
             'Authorization: Bearer ' . $this->config->token,
             'Content-Type: application/json',
             'Accept: application/json, text/event-stream',
         ];
-        if ($this->sessionId !== null) {
-            $headers[] = 'Mcp-Session-Id: ' . $this->sessionId;
+        if ($sessionId !== null) {
+            $headers[] = 'Mcp-Session-Id: ' . $sessionId;
         }
 
         $ch = curl_init($this->config->url);

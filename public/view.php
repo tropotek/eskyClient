@@ -18,31 +18,11 @@ if ($uid === '') {
     Layout::error('No memory id was given.');
 }
 
-/**
- * esky exposes no get-by-uid tool, and searching by uid returns nothing, so the
- * record is located by filtering a list. The store is small; see the design doc.
- */
-$find = static function (array $records, string $uid): ?array {
-    foreach ($records as $record) {
-        if (($record['uid'] ?? null) === $uid) {
-            return $record;
-        }
-    }
-
-    return null;
-};
-
 try {
     $vault = Vaults::load(dirname(__DIR__))->current(Session::vault());
     $client = new Client($vault);
 
-    $memory = null;
-    if ($query !== '') {
-        $memory = $find($client->search($query, 500), $uid);
-    }
-    if ($memory === null) {
-        $memory = $find($client->recent(500), $uid);
-    }
+    $memory = $client->find($uid, $query);
 } catch (EskyException $e) {
     Layout::error($e->getMessage());
 }
@@ -68,6 +48,9 @@ $text = (string) ($memory['text'] ?? '');
 <?php else: ?>
     <h1><?= Page::e(Page::heading($memory)) ?></h1>
     <p class="text-body-secondary small"><?= Page::e((string) ($memory['kind'] ?? '')) ?> &middot; updated <?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></p>
+    <?php if (empty($memory['retired_at'])): ?>
+        <a class="btn btn-sm btn-outline-danger" href="<?= Page::e('/forget.php?uid=' . rawurlencode((string) $memory['uid']) . ($query === '' ? '' : '&q=' . rawurlencode($query))) ?>">Forget</a>
+    <?php endif; ?>
 
     <!-- Content left, metadata in a fixed-width right column. -->
     <div class="row g-3 mt-2 align-items-start">

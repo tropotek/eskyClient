@@ -12,11 +12,7 @@ final class ResponseDecoder
     /** @return list<array<string, mixed>> */
     public static function records(array $message): array
     {
-        if (isset($message['error'])) {
-            $text = $message['error']['message'] ?? 'unknown error';
-            $code = $message['error']['code'] ?? 0;
-            throw new EskyException(sprintf('Esky returned an error (%s): %s', $code, $text));
-        }
+        self::throwIfError($message);
 
         if (!isset($message['result']) || !is_array($message['result'])) {
             throw new EskyException('Esky response contained no result');
@@ -38,5 +34,33 @@ final class ResponseDecoder
         }
 
         return array_values($records);
+    }
+
+    /**
+     * For a tool whose reply is a confirmation rather than records: only a
+     * failure is worth reading, and the text of a success is ignored.
+     */
+    public static function acknowledge(array $message): void
+    {
+        self::throwIfError($message);
+
+        $result = $message['result'] ?? null;
+        if (!is_array($result)) {
+            throw new EskyException('Esky response contained no result');
+        }
+
+        if (($result['isError'] ?? false) === true) {
+            $text = $result['content'][0]['text'] ?? null;
+            throw new EskyException('Esky refused the request: ' . (is_string($text) ? $text : 'unknown error'));
+        }
+    }
+
+    private static function throwIfError(array $message): void
+    {
+        if (isset($message['error'])) {
+            $text = $message['error']['message'] ?? 'unknown error';
+            $code = $message['error']['code'] ?? 0;
+            throw new EskyException(sprintf('Esky returned an error (%s): %s', $code, $text));
+        }
     }
 }

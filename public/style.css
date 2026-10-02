@@ -65,6 +65,11 @@ h1 { font-size: 1.5rem; }
     font-weight: 400;
 }
 
+/* Kind, score and date share one quiet monospace style, so the title and the
+   tags stay the loudest things on a card. */
+.meta { font-family: var(--bs-font-monospace); font-size: .75rem; }
+.meta .sep { margin: 0 .4rem; color: var(--muted); }
+
 .card-link-row { text-decoration: none; }
 .card-link-row:hover .title { text-decoration: underline; }
 .card-link-row .title { font-weight: 600; color: var(--accent); }

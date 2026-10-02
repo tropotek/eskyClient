@@ -25,12 +25,23 @@ final class SessionTest extends TestCase
         self::assertSame('work', Session::vault());
     }
 
-    /* The session is a cookie the visitor controls, so anything that is not a
-       plain string is treated as nothing chosen. */
+    /* Session data lives on the server, but it is read back untyped, so
+       anything that is not a plain string is treated as nothing chosen. */
     public function testANonStringInTheSessionIsIgnored(): void
     {
         $_SESSION['esky_vault'] = ['work'];
 
         self::assertNull(Session::vault());
+    }
+
+    public function testTheCsrfTokenIsRememberedAndNonStringsAreIgnored(): void
+    {
+        self::assertNull(Session::csrfToken());
+
+        Session::setCsrfToken('t');
+        self::assertSame('t', Session::csrfToken());
+
+        $_SESSION['esky_csrf'] = ['t'];
+        self::assertNull(Session::csrfToken());
     }
 }
