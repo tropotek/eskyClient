@@ -8,6 +8,7 @@ use Esky\EskyException;
 use Esky\Layout;
 use Esky\Page;
 use Esky\Session;
+use Esky\Stats;
 use Esky\Vaults;
 
 $query = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
@@ -39,6 +40,15 @@ try {
             — <a href="/index.php">clear the search</a>
         <?php endif; ?>
     </p>
+
+    <?php $labels = ($query !== '' && $records !== []) ? Stats::labels(Stats::summarise($records)) : []; ?>
+    <?php if ($labels !== []): ?>
+        <p class="d-flex flex-wrap gap-1 mb-0">
+        <?php foreach ($labels as $label): ?>
+            <span class="badge rounded-pill tag"><?= Page::e($label) ?></span>
+        <?php endforeach; ?>
+        </p>
+    <?php endif; ?>
 
     <?php if ($records === []): ?>
         <p class="text-body-secondary small">Nothing to show.</p>
