@@ -18,30 +18,16 @@ if ($uid === '') {
     Layout::error('No memory id was given.');
 }
 
-/**
- * esky exposes no get-by-uid tool, and searching by uid returns nothing, so the
- * record is located by filtering a list. The store is small; see the design doc.
- */
-$find = static function (array $records, string $uid): ?array {
-    foreach ($records as $record) {
-        if (($record['uid'] ?? null) === $uid) {
-            return $record;
-        }
-    }
-
-    return null;
-};
-
 try {
     $vault = Vaults::load(dirname(__DIR__))->current(Session::vault());
     $client = new Client($vault);
 
     $memory = null;
     if ($query !== '') {
-        $memory = $find($client->search($query, 500), $uid);
+        $memory = Page::find($client->search($query, 500), $uid);
     }
     if ($memory === null) {
-        $memory = $find($client->recent(500), $uid);
+        $memory = Page::find($client->recent(500), $uid);
     }
 } catch (EskyException $e) {
     Layout::error($e->getMessage());

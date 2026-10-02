@@ -48,6 +48,31 @@ final class Page
     }
 
     /**
+     * esky has no get-by-uid tool, so a record is located by filtering a list
+     * the caller already pulled.
+     *
+     * @param list<array<string, mixed>> $records
+     */
+    public static function find(array $records, string $uid): ?array
+    {
+        foreach ($records as $record) {
+            if (($record['uid'] ?? null) === $uid) {
+                return $record;
+            }
+        }
+
+        return null;
+    }
+
+    /** The optional note sent with a forget: trimmed, capped, null when blank. */
+    public static function reason(string $raw, int $max = 500): ?string
+    {
+        $text = trim($raw);
+
+        return $text === '' ? null : mb_substr($text, 0, $max);
+    }
+
+    /**
      * A token shown for recognition, not for use: the ends only. Anything too
      * short to hide meaningfully is hidden completely rather than half
      * revealed.

@@ -181,9 +181,9 @@ final class Layout
     }
 
     /** A self-contained 500 page. It exits, so nothing after it runs. */
-    public static function error(string $message): never
+    public static function error(string $message, int $status = 500): never
     {
-        http_response_code(500);
+        http_response_code($status);
         $safe = Page::e($message);
         $head = self::head('Esky — error');
         $navbar = self::navbar();
