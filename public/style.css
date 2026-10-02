@@ -68,10 +68,17 @@ h1 { font-size: 1.5rem; }
 /* The kind is a filled, square-cornered badge so it cannot be mistaken for a
    tag (an outlined pill) or run into the date beside it. */
 .badge.kind {
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 14%, transparent);
-    border-radius: .25rem;
+    /* A fixed width keeps the score and date in the same column on every
+       card, whatever the word. */
+    min-width: 5.75rem;
+    padding: .3em .5em;
+    font-size: .75rem;
     font-weight: 500;
+    text-align: center;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: .25rem;
 }
 .score { font-family: var(--bs-font-monospace); font-size: .75rem; }
 .meta-time { border-left: 1px solid var(--line); padding-left: .6rem; }
