@@ -54,4 +54,11 @@ final class ResponseDecoderTest extends TestCase
 
         ResponseDecoder::records(['jsonrpc' => '2.0', 'id' => 1]);
     }
+
+    public function testAcknowledgeIgnoresTheTextOfASuccess(): void
+    {
+        ResponseDecoder::acknowledge(['result' => ['content' => [['type' => 'text', 'text' => 'not json']]]]);
+
+        $this->addToAssertionCount(1);
+    }
 }
