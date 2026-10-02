@@ -22,7 +22,9 @@ if ($method !== 'GET' && $method !== 'POST') {
     Layout::error('That method is not allowed here.', 405);
 }
 
-$uid = trim((string) ($method === 'POST' ? ($_POST['uid'] ?? '') : ($_GET['uid'] ?? '')));
+$input = $method === 'POST' ? $_POST : $_GET;
+$uid = Page::input($input['uid'] ?? null);
+$query = Page::input($input['q'] ?? null);
 if ($uid === '') {
     Layout::error('No memory id was given.', 400);
 }
@@ -36,13 +38,16 @@ try {
     $client = new Client($vault);
 
     // Re-checked on POST too: a forged uid is refused here, not sent to esky.
-    $memory = Page::find($client->recent(500), $uid);
+    $memory = $client->find($uid, $query);
     if ($memory === null) {
         Layout::error('No memory with that id was found.', 404);
     }
+    if (!empty($memory['retired_at'])) {
+        Layout::error('That memory has already been forgotten.', 409);
+    }
 
     if ($method === 'POST') {
-        $client->forget($uid, Page::reason((string) ($_POST['reason'] ?? '')));
+        $client->forget($uid, Page::reason(Page::input($_POST['reason'] ?? null)));
         header('Location: /index.php?forgotten=1', true, 303);
         exit;
     }
@@ -50,7 +55,7 @@ try {
     Layout::error($e->getMessage());
 }
 
-$back = '/view.php?uid=' . rawurlencode($uid);
+$back = '/view.php?uid=' . rawurlencode($uid) . ($query === '' ? '' : '&q=' . rawurlencode($query));
 ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
@@ -67,6 +72,7 @@ $back = '/view.php?uid=' . rawurlencode($uid);
 
     <form method="post" action="/forget.php" class="d-grid gap-3" style="max-width: 32rem">
         <input type="hidden" name="uid" value="<?= Page::e($uid) ?>">
+        <input type="hidden" name="q" value="<?= Page::e($query) ?>">
         <input type="hidden" name="csrf" value="<?= Page::e(Csrf::token()) ?>">
         <label class="form-label mb-0">
             Reason (optional)

@@ -64,6 +64,15 @@ final class Page
         return null;
     }
 
+    /**
+     * Request input read as text. $_GET and $_POST can hold arrays, and casting
+     * one to a string raises a warning, so anything but a string reads as blank.
+     */
+    public static function input(mixed $value): string
+    {
+        return is_string($value) ? trim($value) : '';
+    }
+
     /** The optional note sent with a forget: trimmed, capped, null when blank. */
     public static function reason(string $raw, int $max = 500): ?string
     {

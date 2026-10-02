@@ -110,4 +110,93 @@ final class ClientTest extends TestCase
 
         self::assertSame('a', $client->recent(5)[0]['uid']);
     }
+
+    /** @param array<string, string> $bodies tool name => raw JSON-RPC body */
+    private function clientByTool(array $bodies): Client
+    {
+        $this->sent = [];
+
+        return new Client(
+            new Config('personal', 'Personal', 'http://esky.test/mcp/personal', 'tok'),
+            transport: function (array $payload, ?string $sessionId) use ($bodies): array {
+                $this->sent[] = $payload;
+                $method = $payload['method'] ?? '';
+
+                if ($method === 'initialize') {
+                    return ['body' => '', 'sessionId' => 'sess-1'];
+                }
+                if ($method === 'tools/call') {
+                    return ['body' => 'data: ' . $bodies[$payload['params']['name']] . "\n\n", 'sessionId' => null];
+                }
+
+                return ['body' => '', 'sessionId' => null];
+            }
+        );
+    }
+
+    private static function records(array $records): string
+    {
+        return (string) json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 3,
+            'result' => ['content' => [['type' => 'text', 'text' => json_encode($records)]]],
+        ]);
+    }
+
+    /** @return list<string> */
+    private function toolsCalled(): array
+    {
+        $names = [];
+        foreach ($this->sent as $payload) {
+            if (($payload['method'] ?? '') === 'tools/call') {
+                $names[] = $payload['params']['name'];
+            }
+        }
+
+        return $names;
+    }
+
+    public function testFindWithoutAQueryOnlyReadsTheRecentList(): void
+    {
+        $client = $this->clientByTool([
+            'memory_recent' => self::records([['uid' => 'a', 'updated_at' => '2026-01-01T00:00:00+00:00']]),
+            'memory_search' => self::records([]),
+        ]);
+
+        self::assertSame('a', $client->find('a')['uid']);
+        self::assertSame(['memory_recent'], $this->toolsCalled());
+    }
+
+    /* A memory can be reachable only through the search that listed it. */
+    public function testFindTriesTheSearchFirstWhenGivenAQuery(): void
+    {
+        $client = $this->clientByTool([
+            'memory_search' => self::records([['uid' => 'only-in-search', 'updated_at' => '2026-01-01T00:00:00+00:00']]),
+            'memory_recent' => self::records([]),
+        ]);
+
+        self::assertSame('only-in-search', $client->find('only-in-search', 'esky')['uid']);
+        self::assertSame(['memory_search'], $this->toolsCalled());
+    }
+
+    public function testFindFallsBackToTheRecentListWhenTheSearchMissesIt(): void
+    {
+        $client = $this->clientByTool([
+            'memory_search' => self::records([]),
+            'memory_recent' => self::records([['uid' => 'b', 'updated_at' => '2026-01-01T00:00:00+00:00']]),
+        ]);
+
+        self::assertSame('b', $client->find('b', 'esky')['uid']);
+        self::assertSame(['memory_search', 'memory_recent'], $this->toolsCalled());
+    }
+
+    public function testFindReturnsNullWhenNeitherListHasIt(): void
+    {
+        $client = $this->clientByTool([
+            'memory_search' => self::records([]),
+            'memory_recent' => self::records([]),
+        ]);
+
+        self::assertNull($client->find('zzz', 'esky'));
+    }
 }

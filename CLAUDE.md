@@ -76,7 +76,7 @@ by anyone who could reach the port. `Session` is the only file that touches
 `$_SESSION`; it holds the active vault's name and the CSRF token, nothing else, which keeps
 `Vaults` testable under CLI. A missing or malformed file throws
 `EskyException`, which the page scripts catch and hand to `Layout::error()` (a
-self-contained 500 page — it `exit`s, so nothing after it runs).
+self-contained error page, 500 unless a status is given — it `exit`s, so nothing after it runs).
 
 `Page` holds the helpers that format a record (`e()` for escaping, `preview()`,
 `heading()`, `stamp()`) and `mask()` for a token. `Layout` holds the chrome

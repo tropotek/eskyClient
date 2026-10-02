@@ -50,4 +50,14 @@ final class PageForgetTest extends TestCase
     {
         self::assertSame('<b>x</b>', Page::reason('<b>x</b>'));
     }
+
+    /* $_POST and $_GET can hold arrays (uid[]=x); casting one to string
+       raises a warning, so anything that is not a string reads as blank. */
+    public function testInputTrimsAStringAndBlanksEverythingElse(): void
+    {
+        self::assertSame('abc', Page::input("  abc\n"));
+        self::assertSame('', Page::input(['x']));
+        self::assertSame('', Page::input(null));
+        self::assertSame('', Page::input(12));
+    }
 }

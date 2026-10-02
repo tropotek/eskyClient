@@ -22,13 +22,7 @@ try {
     $vault = Vaults::load(dirname(__DIR__))->current(Session::vault());
     $client = new Client($vault);
 
-    $memory = null;
-    if ($query !== '') {
-        $memory = Page::find($client->search($query, 500), $uid);
-    }
-    if ($memory === null) {
-        $memory = Page::find($client->recent(500), $uid);
-    }
+    $memory = $client->find($uid, $query);
 } catch (EskyException $e) {
     Layout::error($e->getMessage());
 }
@@ -55,7 +49,7 @@ $text = (string) ($memory['text'] ?? '');
     <h1><?= Page::e(Page::heading($memory)) ?></h1>
     <p class="text-body-secondary small"><?= Page::e((string) ($memory['kind'] ?? '')) ?> &middot; updated <?= Page::e(Page::stamp((string) ($memory['updated_at'] ?? ''))) ?></p>
     <?php if (empty($memory['retired_at'])): ?>
-        <a class="btn btn-sm btn-outline-danger" href="/forget.php?uid=<?= Page::e(rawurlencode((string) $memory['uid'])) ?>">Forget</a>
+        <a class="btn btn-sm btn-outline-danger" href="<?= Page::e('/forget.php?uid=' . rawurlencode((string) $memory['uid']) . ($query === '' ? '' : '&q=' . rawurlencode($query))) ?>">Forget</a>
     <?php endif; ?>
 
     <!-- Content left, metadata in a fixed-width right column. -->

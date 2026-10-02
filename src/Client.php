@@ -44,6 +44,18 @@ final class Client
     }
 
     /**
+     * esky has no get-by-uid tool, so a memory is found by filtering a large
+     * list: the search that led to it first (it may not be among the most
+     * recent), then the recent list. Only works because the store is small.
+     */
+    public function find(string $uid, string $query = ''): ?array
+    {
+        $memory = $query === '' ? null : Page::find($this->search($query, 500), $uid);
+
+        return $memory ?? Page::find($this->recent(500), $uid);
+    }
+
+    /**
      * The cheapest call that proves a vault is reachable and the token is
      * accepted: the handshake alone, with no tools/call behind it.
      */

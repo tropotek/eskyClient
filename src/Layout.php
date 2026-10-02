@@ -181,10 +181,17 @@ final class Layout
     }
 
     /** A self-contained 500 page. It exits, so nothing after it runs. */
+    /** A 5xx is the app failing; anything else is the request being refused. */
+    public static function errorHeading(int $status): string
+    {
+        return $status >= 500 ? 'Something went wrong' : 'That did not work';
+    }
+
     public static function error(string $message, int $status = 500): never
     {
         http_response_code($status);
         $safe = Page::e($message);
+        $heading = self::errorHeading($status);
         $head = self::head('Esky — error');
         $navbar = self::navbar();
         echo <<<HTML
@@ -194,7 +201,7 @@ final class Layout
         <body>
         {$navbar}
         <main class="container pb-5">
-        <h1>Something went wrong</h1>
+        <h1>{$heading}</h1>
         <div class="alert alert-danger" role="alert">{$safe}</div>
         <p><a href="/">Back to the list</a></p>
         </main></body></html>
