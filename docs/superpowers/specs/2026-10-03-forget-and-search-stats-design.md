@@ -1,22 +1,22 @@
-# Retire a memory, and search stats — design
+# Forget a memory, and search stats — design
 
 Date: 2026-10-03
 
 ## Intent
 
-Let the owner retire a memory from the UI, and show a compact summary of a
+Let the owner forget (retire) a memory from the UI, and show a compact summary of a
 search's results above the list. Both are for one person on a trusted LAN.
 
 ## Decisions already made
 
-- The app has no auth. Anyone who can reach the port can retire memories. The
+- The app has no auth. Anyone who can reach the port can forget memories. The
   owner accepts this for a LAN; protection is CSRF token plus a confirm step.
   Adding authentication is out of scope.
-- Retiring uses esky's `memory_forget`, which hides a memory from searches but
+- Forgetting uses esky's `memory_forget`, which hides a memory from searches but
   never destroys it, so it is recoverable on the server.
 - Stats are a compact strip, not a panel with charts.
 
-## 1. Retire
+## 1. Forget
 
 ### Components
 
@@ -28,25 +28,25 @@ search's results above the list. Both are for one person on a trusted LAN.
   `random_bytes`, `verify(?string): bool` compares with `hash_equals`. It
   stores the token via `Session`, which stays the only file touching
   `$_SESSION` (new method pair `csrfToken()` / `setCsrfToken()`).
-- `public/retire.php`:
+- `public/forget.php`:
   - GET `?uid=` renders a confirm page: memory title, a reason field, the CSRF
-    token, a Retire button and a Cancel link back to `view.php`. The memory is
+    token, a Forget button and a Cancel link back to `view.php`. The memory is
     located the same way `view.php` does it.
   - POST validates the token, calls `forget`, and redirects 303 to
-    `/index.php?retired=1`. `index.php` shows a one-line notice for it.
+    `/index.php?forgotten=1`. `index.php` shows a one-line notice for it.
   - Any other method returns 405. A bad or missing token returns 403 through
     `Layout::error()`.
-- `view.php` gains a "Retire" button linking to `retire.php?uid=`. It is hidden
+- `view.php` gains a "Forget" button linking to `forget.php?uid=`. It is hidden
   when the memory already has `retired_at`.
 
 ### Constraints
 
-- A GET must never change state; only the POST retires.
+- A GET must never change state; only the POST forgets.
 - The reason is optional, trimmed, and capped at 500 characters.
 - The uid in the POST body is re-checked against the vault's list so a forged
   uid for a nonexistent memory is rejected rather than forwarded.
 - `CLAUDE.md`: the rule "the app never writes, updates or retires a memory"
-  becomes "the only write is `memory_forget`, from `retire.php`, behind CSRF
+  becomes "the only write is `memory_forget`, from `forget.php`, behind CSRF
   and a confirm page". Its `Session` description is updated to include the CSRF
   token.
 
@@ -75,11 +75,11 @@ Offline PHPUnit only, no sockets:
   and wrong values.
 - `StatsTest` — counts, score range, top-5 tag cut-off and ordering, records
   missing optional fields, empty input.
-- A page-level test that `retire.php` refuses GET-driven state change is
+- A page-level test that `forget.php` refuses GET-driven state change is
   covered by keeping the logic in a testable class if one emerges; otherwise
   checked by hand against the running container.
 
 ## Out of scope
 
-Authentication, un-retiring, bulk retire, editing, and any stats beyond the
+Authentication, un-forgetting, bulk forget, editing, and any stats beyond the
 strip.
