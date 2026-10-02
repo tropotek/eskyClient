@@ -33,4 +33,15 @@ final class SessionTest extends TestCase
 
         self::assertNull(Session::vault());
     }
+
+    public function testTheCsrfTokenIsRememberedAndNonStringsAreIgnored(): void
+    {
+        self::assertNull(Session::csrfToken());
+
+        Session::setCsrfToken('t');
+        self::assertSame('t', Session::csrfToken());
+
+        $_SESSION['esky_csrf'] = ['t'];
+        self::assertNull(Session::csrfToken());
+    }
 }
