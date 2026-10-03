@@ -34,6 +34,7 @@ final class Layout
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{$safe}</title>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="stylesheet" href="/vendor/bootstrap.min.css">
         <link rel="stylesheet" href="/style.css">
         <script src="/vendor/bootstrap.bundle.min.js" defer></script>
