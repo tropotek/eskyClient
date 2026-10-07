@@ -89,5 +89,6 @@ try {
     <?php endforeach; ?>
     </ul>
 </main>
+<?= Layout::footer() ?>
 </body>
 </html>

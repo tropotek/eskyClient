@@ -181,6 +181,23 @@ final class Layout
         }
     }
 
+    /**
+     * Static site footer with external links. Rendered on every page just
+     * before </body> so the chrome is consistent.
+     */
+    public static function footer(): string
+    {
+        return <<<HTML
+        <footer class="container border-top mt-4 py-3 text-body-secondary small d-flex justify-content-end gap-2">
+            <a href="https://github.com/tropotek/eskyClient" target="_blank" rel="noopener" class="link-secondary text-decoration-none">GitHub</a>
+            <span aria-hidden="true">|</span>
+            <a href="https://github.com/tropotek/esky" target="_blank" rel="noopener" class="link-secondary text-decoration-none">Server</a>
+            <span aria-hidden="true">|</span>
+            <a href="https://tropotek.github.io/esky/" target="_blank" rel="noopener" class="link-secondary text-decoration-none">Server docs</a>
+        </footer>
+        HTML;
+    }
+
     /** A self-contained 500 page. It exits, so nothing after it runs. */
     /** A 5xx is the app failing; anything else is the request being refused. */
     public static function errorHeading(int $status): string
@@ -195,6 +212,7 @@ final class Layout
         $heading = self::errorHeading($status);
         $head = self::head('Esky — error');
         $navbar = self::navbar();
+        $footer = self::footer();
         echo <<<HTML
         <!doctype html>
         <html lang="en" data-bs-theme="dark">
@@ -205,7 +223,9 @@ final class Layout
         <h1>{$heading}</h1>
         <div class="alert alert-danger" role="alert">{$safe}</div>
         <p><a href="/">Back to the list</a></p>
-        </main></body></html>
+        </main>
+        {$footer}
+        </body></html>
         HTML;
         exit;
     }

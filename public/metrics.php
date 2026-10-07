@@ -162,5 +162,6 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
         </div></section></div>
     </div>
 </main>
+<?= Layout::footer() ?>
 </body>
 </html>

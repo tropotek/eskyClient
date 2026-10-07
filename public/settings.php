@@ -70,5 +70,6 @@ try {
         </tbody>
     </table>
 </main>
+<?= Layout::footer() ?>
 </body>
 </html>

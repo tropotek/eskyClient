@@ -93,5 +93,6 @@ $text = (string) ($memory['text'] ?? '');
     </div>
 <?php endif; ?>
 </main>
+<?= Layout::footer() ?>
 </body>
 </html>

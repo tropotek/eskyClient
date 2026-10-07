@@ -51,5 +51,6 @@ try {
     </ul>
     <p class="small"><a href="/settings.php">How these are configured</a></p>
 </main>
+<?= Layout::footer() ?>
 </body>
 </html>

@@ -84,5 +84,6 @@ $back = '/view.php?uid=' . rawurlencode($uid) . ($query === '' ? '' : '&q=' . ra
         </div>
     </form>
 </main>
+<?= Layout::footer() ?>
 </body>
 </html>
