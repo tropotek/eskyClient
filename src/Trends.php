@@ -71,6 +71,34 @@ final class Trends
     }
 
     /**
+     * Memories that are still answering searches but have not been touched in
+     * a long time. The server hands over `updated_at`; the threshold is a
+     * client-side decision so it can be tuned without a deploy.
+     *
+     * @param list<array<string, mixed>> $topFacts rows with uid, title, count, updated_at
+     * @return list<array{label: string, values: list<int>, href: string}>
+     */
+    public static function staleAnswerers(array $topFacts, string $staleBefore): array
+    {
+        $out = [];
+        foreach ($topFacts as $row) {
+            $updated = (string) ($row['updated_at'] ?? '');
+            if ($updated === '' || $updated >= $staleBefore) {
+                continue;
+            }
+            $uid = (string) ($row['uid'] ?? '');
+            $title = (string) ($row['title'] ?? '');
+            $out[] = [
+                'label' => $title !== '' ? $title : $uid,
+                'values' => [(int) ($row['count'] ?? 0)],
+                'href' => '/view.php?uid=' . rawurlencode($uid),
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
      * Tags that callers searched for but the store does not carry on any live
      * memory. The clearest "what's missing" signal already in the summary:
      * both lists are capped at the server's top-N, so a rare tag may be

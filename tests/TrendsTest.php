@@ -94,6 +94,39 @@ final class TrendsTest extends TestCase
         );
     }
 
+    public function testStaleAnswerersKeepsTopFactsOlderThanTheCutoff(): void
+    {
+        $stale = Trends::staleAnswerers(
+            [
+                ['uid' => 'a', 'title' => 'Fresh', 'count' => 3, 'updated_at' => '2026-09-01T00:00:00+00:00'],
+                ['uid' => 'b', 'title' => 'Old',   'count' => 2, 'updated_at' => '2025-02-14T00:00:00+00:00'],
+                ['uid' => 'c', 'title' => '',      'count' => 1, 'updated_at' => '2024-10-01T00:00:00+00:00'],
+            ],
+            staleBefore: '2026-04-07',
+        );
+
+        self::assertSame(
+            [
+                ['label' => 'Old', 'values' => [2], 'href' => '/view.php?uid=b'],
+                ['label' => 'c',   'values' => [1], 'href' => '/view.php?uid=c'],
+            ],
+            $stale,
+        );
+    }
+
+    public function testStaleAnswerersSkipsRowsWithoutATimestamp(): void
+    {
+        /* A top_fact whose uid no longer resolves on the server comes back
+           without updated_at — those cannot be judged stale, so they are left
+           out rather than counted as ancient. */
+        $stale = Trends::staleAnswerers(
+            [['uid' => 'gone', 'count' => 4, 'updated_at' => null]],
+            staleBefore: '2026-04-07',
+        );
+
+        self::assertSame([], $stale);
+    }
+
     public function testCoverageGapIsEmptyWhenEverySearchedTagIsHeld(): void
     {
         $gap = Trends::coverageGap(

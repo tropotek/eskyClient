@@ -34,6 +34,13 @@ $searches = (int) $totals['searches'];
 $unanswered = (int) $totals['zero_match'];
 $missRate = $searches > 0 ? round($unanswered / $searches * 100) . '%' : '—';
 
+/* Six months. A memory that answered recent searches and has not been
+   touched in half a year is overdue for a look — tight enough to be useful,
+   generous enough that a known-stable memory does not keep appearing. */
+$staleBefore = (new DateTimeImmutable('today', new DateTimeZone('UTC')))
+    ->modify('-6 months')
+    ->format('Y-m-d');
+
 $daily = static fn (array $rows, array $keys): array => array_map(
     static fn (array $row): array => [
         'label' => (string) $row['date'],
@@ -119,6 +126,25 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
     </div></section>
 
     <section class="card mt-3"><div class="card-body">
+        <h2 class="h6 mb-1">New questions each day</h2>
+        <p class="text-body-secondary small mb-3">Distinct queries counted once on the day they were first seen in the window, split by whether the same text appeared in the prior <?= $days ?>-day window. A rising <em>new</em> line is callers exploring; a rising <em>repeat</em> line is callers looping.</p>
+        <p class="small text-body-secondary mb-2">
+            <span class="me-3"><?= (int) $summary['novelty']['new'] ?> new</span>
+            <span><?= (int) $summary['novelty']['repeat'] ?> repeat</span>
+        </p>
+        <?= Chart::bars(
+            array_map(
+                static fn (array $row): array => [
+                    'label' => (string) $row['date'],
+                    'values' => [(int) $row['new'], (int) $row['repeat']],
+                ],
+                $summary['novelty']['daily'],
+            ),
+            ['new', 'repeat'],
+        ) ?>
+    </div></section>
+
+    <section class="card mt-3"><div class="card-body">
         <h2 class="h6 mb-1">What was asked most</h2>
         <p class="text-body-secondary small mb-3">A frequent question that stays unanswered is the clearest signal of what belongs in the store.</p>
         <?= Chart::ranked(
@@ -158,6 +184,12 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
     </div>
 
     <section class="card mt-3"><div class="card-body">
+        <h2 class="h6 mb-1">Stale answerers</h2>
+        <p class="text-body-secondary small mb-3">Memories that answered searches in this window but have not been edited since <?= Page::e($staleBefore) ?>. Still earning their keep, overdue for a look.</p>
+        <?= Chart::ranked(Trends::staleAnswerers($summary['top_facts'], $staleBefore), ['searches']) ?>
+    </div></section>
+
+    <section class="card mt-3"><div class="card-body">
         <h2 class="h6 mb-1">Memories added and retired</h2>
         <p class="text-body-secondary small mb-3">Growth against pruning. Nothing being retired over a long window usually means nothing is being reviewed.</p>
         <?= Chart::bars($daily($stats['daily'], ['created', 'retired']), ['added', 'retired']) ?>
@@ -167,6 +199,21 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
         <h2 class="h6 mb-1">Memories held over time</h2>
         <p class="text-body-secondary small mb-3">The running count, back-derived from today's total so the line lands on the tile above.</p>
         <?= Chart::lines(Trends::growth($stats['daily'], (int) $stats['facts']), ['live memories']) ?>
+    </div></section>
+
+    <section class="card mt-3"><div class="card-body">
+        <h2 class="h6 mb-1">Age of memories held</h2>
+        <p class="text-body-secondary small mb-3">Live memories by how long ago they were created. A tall <em>older</em> bar means review debt — the store is carrying what nobody has looked at in a year.</p>
+        <?= Chart::bars(
+            array_map(
+                static fn (array $b): array => [
+                    'label' => (string) $b['label'],
+                    'values' => [(int) $b['count']],
+                ],
+                $stats['age_buckets'],
+            ),
+            ['memories'],
+        ) ?>
     </div></section>
 
     <div class="row g-3 align-items-start">
