@@ -71,6 +71,38 @@ final class Trends
     }
 
     /**
+     * Tags that callers searched for but the store does not carry on any live
+     * memory. The clearest "what's missing" signal already in the summary:
+     * both lists are capped at the server's top-N, so a rare tag may be
+     * absent from either side — the gap is suggestive, not exhaustive.
+     *
+     * @param list<array<string, mixed>> $searched rows with tag and count
+     * @param list<array<string, mixed>> $held rows with tag
+     * @return list<array{label: string, values: list<int>}> ordered by search count, largest first
+     */
+    public static function coverageGap(array $searched, array $held): array
+    {
+        $heldTags = [];
+        foreach ($held as $row) {
+            $tag = (string) ($row['tag'] ?? '');
+            if ($tag !== '') {
+                $heldTags[$tag] = true;
+            }
+        }
+
+        $out = [];
+        foreach ($searched as $row) {
+            $tag = (string) ($row['tag'] ?? '');
+            if ($tag === '' || isset($heldTags[$tag])) {
+                continue;
+            }
+            $out[] = ['label' => $tag, 'values' => [(int) ($row['count'] ?? 0)]];
+        }
+
+        return $out;
+    }
+
+    /**
      * Running count of live memories across the window, back-derived from the
      * current total: start = live − Σcreated + Σretired, then cumulated day
      * by day. The server's daily rows do not include a running total, and

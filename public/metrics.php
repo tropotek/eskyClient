@@ -182,6 +182,12 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
             <?= Chart::ranked($ranked($stats['top_tags'], 'tag', 'count'), ['memories']) ?>
         </div></section></div>
     </div>
+
+    <section class="card mt-3"><div class="card-body">
+        <h2 class="h6 mb-1">Searched for, not held</h2>
+        <p class="text-body-secondary small mb-3">Tags callers used as filters that no live memory carries — a direct read on what the store is being asked for but does not have. Both lists are capped server-side, so a rarely-used tag may not surface here.</p>
+        <?= Chart::ranked(Trends::coverageGap($summary['top_tags'], $stats['top_tags']), ['searches']) ?>
+    </div></section>
 </main>
 <?= Layout::footer() ?>
 </body>

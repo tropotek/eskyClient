@@ -73,4 +73,34 @@ final class TrendsTest extends TestCase
     {
         self::assertSame([], Trends::growth([], endLive: 42));
     }
+
+    public function testCoverageGapKeepsTagsSearchedForButNotHeld(): void
+    {
+        $gap = Trends::coverageGap(
+            searched: [
+                ['tag' => 'php', 'count' => 9],
+                ['tag' => 'docker', 'count' => 4],
+                ['tag' => 'kafka', 'count' => 2],
+            ],
+            held: [['tag' => 'php'], ['tag' => 'bash']],
+        );
+
+        self::assertSame(
+            [
+                ['label' => 'docker', 'values' => [4]],
+                ['label' => 'kafka', 'values' => [2]],
+            ],
+            $gap,
+        );
+    }
+
+    public function testCoverageGapIsEmptyWhenEverySearchedTagIsHeld(): void
+    {
+        $gap = Trends::coverageGap(
+            searched: [['tag' => 'php', 'count' => 3]],
+            held: [['tag' => 'php']],
+        );
+
+        self::assertSame([], $gap);
+    }
 }
