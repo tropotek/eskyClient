@@ -28,12 +28,15 @@ Four request paths, no router, no framework: `public/index.php` (list +
 search), `public/view.php` (single memory), `public/forget.php` (confirm and
 forget) and `public/metrics.php` (charts). PSR-4 `Esky\` → `src/`.
 
-**Two transports, deliberately.** The memory pages speak MCP over HTTP
-(`Client`); `metrics.php` reads the REST surface (`Api`), because the aggregates
-it charts are not MCP tools — they are for a human reviewing the store, and every
-tool description costs context in every agent session. `Config` derives the REST
-base and the profile name from the vault's MCP url so the two are configured
-once; the optional `apiUrl` / `profile` fields in `config.json` override that.
+**Two transports, deliberately.** `view.php` and `forget.php` speak MCP over
+HTTP (`Client`), because they act on a specific memory the way an agent would.
+`index.php` (list + paged search) and `metrics.php` read the REST surface
+(`Api`), because paging and aggregates are human concerns — they are not MCP
+tools and would cost context in every agent session, and a list driven by MCP
+would log every click of the Next button as a search. `Config` derives the
+REST base and the profile name from the vault's MCP url so the two are
+configured once; the optional `apiUrl` / `profile` fields in `config.json`
+override that.
 
 Bootstrap 5.3 supplies the layout and components, in its dark mode, vendored at
 `public/vendor/bootstrap.min.css`. No CDN: this is read on a LAN that need not

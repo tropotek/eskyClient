@@ -27,17 +27,37 @@ final class Api
     /** @return array<string, mixed> */
     public function querySummary(int $days): array
     {
-        return $this->get('queries/summary', $days);
+        return $this->request('queries/summary', ['days' => $days]);
     }
 
     /** @return array<string, mixed> */
     public function stats(int $days): array
     {
-        return $this->get('stats', $days);
+        return $this->request('stats', ['days' => $days]);
     }
 
-    /** @return array<string, mixed> */
-    private function get(string $path, int $days): array
+    /**
+     * A page of live memories, hybrid-searched when `q` is set. Separate from
+     * `Client::search()` on purpose: the list page is for a human reviewing
+     * the store, and routing through the MCP tool would pollute the agent
+     * query log with every click of the Next button.
+     *
+     * @return array<string, mixed>
+     */
+    public function facts(int $limit, int $offset = 0, string $q = ''): array
+    {
+        return $this->request('facts', [
+            'limit' => $limit,
+            'offset' => $offset,
+            'q' => $q,
+        ]);
+    }
+
+    /**
+     * @param array<string, int|string> $params
+     * @return array<string, mixed>
+     */
+    private function request(string $path, array $params): array
     {
         if ($this->config->profile === null) {
             throw new EskyException(
@@ -47,11 +67,11 @@ final class Api
         }
 
         $url = sprintf(
-            '%s/api/%s/%s?days=%d',
+            '%s/api/%s/%s?%s',
             $this->config->apiBase,
             rawurlencode($this->config->profile),
             $path,
-            $days
+            http_build_query($params)
         );
 
         $response = ($this->transport)($url, $this->config->token);

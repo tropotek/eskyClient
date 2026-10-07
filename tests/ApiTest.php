@@ -89,6 +89,27 @@ final class ApiTest extends TestCase
         $api->querySummary(7);
     }
 
+    public function testFactsAsksTheProfilesFactsEndpointWithPagingAndQuery(): void
+    {
+        $api = $this->api(200, '{"facts":[],"total":0,"limit":50,"offset":0}');
+
+        $api->facts(50, 100, 'docker');
+
+        self::assertSame(
+            ['http://esky.test:8011/api/personal/facts?limit=50&offset=100&q=docker'],
+            $this->requested,
+        );
+    }
+
+    public function testFactsEncodesTheQueryStringSafely(): void
+    {
+        $api = $this->api(200, '{"facts":[],"total":0,"limit":50,"offset":0}');
+
+        $api->facts(50, 0, 'why not & how');
+
+        self::assertStringContainsString('q=why+not+%26+how', $this->requested[0]);
+    }
+
     public function testAUrlWithoutAProfileIsRefusedWithAdvice(): void
     {
         /* The REST paths are per profile, so the metrics page cannot work at

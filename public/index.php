@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-use Esky\Client;
+use Esky\Api;
 use Esky\EskyException;
 use Esky\Layout;
 use Esky\Page;
@@ -11,15 +11,47 @@ use Esky\Session;
 use Esky\Stats;
 use Esky\Vaults;
 
+/** Sizes the limit dropdown offers. The server caps at 200. */
+const PAGE_SIZES = [20, 50, 100, 200];
+
 $query = isset($_GET['q']) ? trim((string) $_GET['q']) : '';
+$limit = (int) ($_GET['limit'] ?? 50);
+if (!in_array($limit, PAGE_SIZES, true)) {
+    $limit = 50;
+}
+$page = max(1, (int) ($_GET['page'] ?? 1));
+$offset = ($page - 1) * $limit;
 
 try {
-    $vault = Vaults::load(dirname(__DIR__))->current(Session::vault());
-    $client = new Client($vault);
-    $records = $query === '' ? $client->recent(50) : $client->search($query, 50);
+    $config = Vaults::load(dirname(__DIR__))->current(Session::vault());
+    $response = (new Api($config))->facts($limit, $offset, $query);
 } catch (EskyException $e) {
     Layout::error($e->getMessage());
 }
+
+$records = $response['facts'];
+$total = (int) $response['total'];
+$lastPage = max(1, (int) ceil($total / $limit));
+// Round-trip past the last page lands the viewer on page 1 — a stale bookmark
+// should still show something, not an empty frame.
+if ($records === [] && $page > 1 && $total > 0) {
+    header('Location: /index.php?' . http_build_query(array_filter([
+        'q' => $query,
+        'limit' => $limit !== 50 ? $limit : null,
+        'page' => $lastPage,
+    ])));
+    exit;
+}
+
+$firstOnPage = $total === 0 ? 0 : $offset + 1;
+$lastOnPage = $offset + count($records);
+
+$link = static fn (array $params): string => '/index.php?' . http_build_query(
+    array_filter(array_merge(
+        ['q' => $query, 'limit' => $limit, 'page' => $page],
+        $params,
+    ), static fn ($v): bool => $v !== null && $v !== '')
+);
 ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
@@ -33,12 +65,30 @@ try {
         <div class="alert alert-success" role="alert">Memory forgotten. It no longer appears in searches.</div>
     <?php endif; ?>
 
-    <p class="text-body-secondary small">
-        <?= count($records) ?> <?= count($records) === 1 ? 'memory' : 'memories' ?>
-        <?= $query === '' ? 'most recently updated' : 'matching ' . Page::e($query) ?>
-        <?php if ($query !== ''): ?>
-            — <a href="/index.php">clear the search</a>
-        <?php endif; ?>
+    <p class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+        <span class="text-body-secondary small">
+            <?php if ($total === 0): ?>
+                No <?= $query === '' ? 'memories yet' : 'memories match ' . Page::e($query) ?>
+            <?php else: ?>
+                <?= $firstOnPage ?>–<?= $lastOnPage ?> of <?= $total ?>
+                <?= $total === 1 ? 'memory' : 'memories' ?>
+                <?= $query === '' ? 'most recently updated' : 'matching ' . Page::e($query) ?>
+            <?php endif; ?>
+            <?php if ($query !== ''): ?>
+                — <a href="/index.php">clear the search</a>
+            <?php endif; ?>
+        </span>
+        <span class="ms-auto d-flex align-items-baseline gap-2">
+            <span class="text-body-secondary small">per page</span>
+            <?php foreach (PAGE_SIZES as $size): ?>
+                <?php if ($size === $limit): ?>
+                    <span class="badge rounded-pill border window current"><?= $size ?></span>
+                <?php else: ?>
+                    <a class="badge rounded-pill border window"
+                       href="<?= Page::e($link(['limit' => $size, 'page' => 1])) ?>"><?= $size ?></a>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </span>
     </p>
 
     <?php $labels = ($query !== '' && $records !== []) ? Stats::labels(Stats::summarise($records)) : []; ?>
@@ -88,6 +138,22 @@ try {
         </li>
     <?php endforeach; ?>
     </ul>
+
+    <?php if ($lastPage > 1): ?>
+        <nav class="mt-4" aria-label="Memory pages">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= Page::e($link(['page' => $page - 1])) ?>" <?= $page <= 1 ? 'aria-disabled="true" tabindex="-1"' : '' ?>>Previous</a>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">Page <?= $page ?> of <?= $lastPage ?></span>
+                </li>
+                <li class="page-item <?= $page >= $lastPage ? 'disabled' : '' ?>">
+                    <a class="page-link" href="<?= Page::e($link(['page' => $page + 1])) ?>" <?= $page >= $lastPage ? 'aria-disabled="true" tabindex="-1"' : '' ?>>Next</a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
 </main>
 <?= Layout::footer() ?>
 </body>
