@@ -9,6 +9,7 @@ use Esky\EskyException;
 use Esky\Layout;
 use Esky\Page;
 use Esky\Session;
+use Esky\Trends;
 use Esky\Vaults;
 
 /** The windows the server's aggregates are cheap at, and a human reads. */
@@ -91,6 +92,20 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
         <?= Chart::lines($daily($summary['daily'], ['searches', 'zero_match']), ['searches', 'unanswered']) ?>
     </div></section>
 
+    <?php if ($days >= 30): ?>
+        <section class="card mt-3"><div class="card-body">
+            <h2 class="h6 mb-1">Searches per week</h2>
+            <p class="text-body-secondary small mb-3">The same traffic rolled up by ISO week, where the daily noise smooths out and a real trend is readable.</p>
+            <?= Chart::bars(Trends::weekly($summary['daily'], ['searches', 'zero_match']), ['searches', 'unanswered']) ?>
+        </div></section>
+    <?php endif; ?>
+
+    <section class="card mt-3"><div class="card-body">
+        <h2 class="h6 mb-1">Miss rate</h2>
+        <p class="text-body-secondary small mb-3">Unanswered as a share of searches, day by day. A day with no searches reads as zero, not as a 100% miss.</p>
+        <?= Chart::lines(Trends::missRateDaily($summary['daily']), ['miss rate %']) ?>
+    </div></section>
+
     <section class="card mt-3"><div class="card-body">
         <h2 class="h6 mb-1">How much each search found</h2>
         <p class="text-body-secondary small mb-3">Matches before the caller's limit truncated them. A store leaning on <em>0</em> is being asked things it does not hold; one leaning on <em>11+</em> is answering vaguely.</p>
@@ -146,6 +161,12 @@ $ranked = static fn (array $rows, string $label, string $value): array => array_
         <h2 class="h6 mb-1">Memories added and retired</h2>
         <p class="text-body-secondary small mb-3">Growth against pruning. Nothing being retired over a long window usually means nothing is being reviewed.</p>
         <?= Chart::bars($daily($stats['daily'], ['created', 'retired']), ['added', 'retired']) ?>
+    </div></section>
+
+    <section class="card mt-3"><div class="card-body">
+        <h2 class="h6 mb-1">Memories held over time</h2>
+        <p class="text-body-secondary small mb-3">The running count, back-derived from today's total so the line lands on the tile above.</p>
+        <?= Chart::lines(Trends::growth($stats['daily'], (int) $stats['facts']), ['live memories']) ?>
     </div></section>
 
     <div class="row g-3 align-items-start">
