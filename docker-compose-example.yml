@@ -1,0 +1,29 @@
+# eskyClient — production compose for operators. Copy this file to docker-compose-live.yml in an
+# empty folder (that name is what livesites.sh looks for), put config.json next to it, and start it.
+#
+#   docker compose -f docker-compose-live.yml up -d          start
+#   docker compose -f docker-compose-live.yml pull && \
+#   docker compose -f docker-compose-live.yml up -d          upgrade to a newer image
+#
+# config.json lists the esky vaults and holds their bearer tokens (see config.json.example).
+# Keep it chmod 600 and owned by uid 1000, the user the container runs as. It is read on every
+# request, so an edit needs no restart.
+#
+# The app has no login: anyone who can reach the port can browse and forget memories. Publish it
+# only where that is acceptable.
+#
+# Optional .env next to this file:
+#   ESKY_CLIENT_PORT=8080      # host port
+
+name: z-eskyClient
+
+services:
+  app:
+    image: ${ESKY_CLIENT_IMAGE:-ghcr.io/tropotek/eskyclient}:${ESKY_CLIENT_TAG:-latest}
+    pull_policy: always  # stop + start (livesites p, s) picks up a new :latest
+    restart: unless-stopped
+    ports:
+      # Host port -> FrankenPHP on 8080 (plain HTTP; put TLS in a reverse proxy).
+      - "${ESKY_CLIENT_PORT:-8080}:8080"
+    volumes:
+      - ./config.json:/app/config.json:ro

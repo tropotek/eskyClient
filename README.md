@@ -33,6 +33,28 @@ its MCP endpoint and bearer token. Then:
 The app is served on `http://localhost:8080` by default; change `HTTP_APP_PORT`
 in `.env` to move it.
 
+## Installing from the image
+
+Releases are published as `ghcr.io/tropotek/eskyclient` (`:X.Y.Z` and
+`:latest`). An install needs no checkout — a folder with the compose file and
+`config.json`:
+
+    mkdir eskyclient && cd eskyclient
+    curl -fsSLo docker-compose-live.yml \
+      https://raw.githubusercontent.com/tropotek/eskyClient/main/docker-compose-example.yml
+    curl -fsSLo config.json \
+      https://raw.githubusercontent.com/tropotek/eskyClient/main/config.json.example
+    chmod 600 config.json                 # holds bearer tokens; edit in your vaults
+    echo ESKY_CLIENT_PORT=8080 > .env
+    docker compose -f docker-compose-live.yml up -d
+
+Upgrade with `docker compose -f docker-compose-live.yml pull` and `up -d`. The
+footer shows the running release. The container runs as uid 1000, which must be
+able to read `config.json`.
+
+To cut a release from a checkout: `bin/release vX.Y.Z` runs the suite, tags, and
+asks before pushing the tag that starts the build.
+
 ## Configuration
 
 Vaults live in `config.json` in the project root, which is git-ignored because

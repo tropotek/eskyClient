@@ -17,6 +17,16 @@ Everything runs in the container; PHP is not expected on the host.
     docker compose run --rm app php bin/smoke.php         # live check, first vault
     docker compose run --rm app php bin/smoke.php work    # live check, a named vault
 
+    bin/release vX.Y.Z                                    # test, tag, push: GHA publishes the image
+
+**The live site is not this checkout.** It runs on ws.tk from
+`ghcr.io/tropotek/eskyclient:latest` (`~/Projects/Live/eskyClient` there, project
+`z-eskyClient`, port 18030, served as `http://eskyclient.tk`), with its own
+`config.json` mounted read-only. Deploying means a release, then pull and restart
+on ws.tk. `docker-compose-example.yml` is the install template; the Dockerfile's
+`prod` stage is the shipped image and `dev` (last, the default) is the one
+`docker-compose.yml` builds.
+
 `bin/smoke.php` (live connectivity probe) hits the real server and needs a
 working vault in `config.json`; the PHPUnit suite is offline-only and must stay
 that way — no test may open a socket.

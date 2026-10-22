@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.superpowers
+_notes
+vendor
+tests
+docs
+bin
+.env
+.env.*
+!.env.example
+config.json
+.phpunit.result.cache
+docker-compose*.yml
