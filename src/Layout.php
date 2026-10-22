@@ -187,8 +187,15 @@ final class Layout
      */
     public static function footer(): string
     {
+        // Release images stamp APP_VERSION; a dev checkout has none and shows nothing.
+        $version = (string) getenv('APP_VERSION');
+        $versionHtml = $version === ''
+            ? ''
+            : '<span class="me-auto">' . Page::e($version) . '</span>';
+
         return <<<HTML
         <footer class="container border-top mt-4 py-3 text-body-secondary small d-flex justify-content-end gap-2">
+            {$versionHtml}
             <a href="https://github.com/tropotek/eskyClient" target="_blank" rel="noopener" class="link-secondary text-decoration-none">GitHub</a>
             <span aria-hidden="true">|</span>
             <a href="https://github.com/tropotek/esky" target="_blank" rel="noopener" class="link-secondary text-decoration-none">Server</a>

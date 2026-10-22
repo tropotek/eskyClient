@@ -233,4 +233,30 @@ final class LayoutTest extends TestCase
     {
         self::assertStringNotContainsString('<script>', Layout::head('<script>'));
     }
+
+    public function testTheFooterShowsTheReleaseVersion(): void
+    {
+        putenv('APP_VERSION=v1.2.3');
+        try {
+            self::assertStringContainsString('v1.2.3', Layout::footer());
+        } finally {
+            putenv('APP_VERSION');
+        }
+    }
+
+    public function testTheFooterOmitsTheVersionOutsideARelease(): void
+    {
+        putenv('APP_VERSION');
+        self::assertStringNotContainsString('class="me-auto"', Layout::footer());
+    }
+
+    public function testTheFooterEscapesTheVersion(): void
+    {
+        putenv('APP_VERSION=<b>');
+        try {
+            self::assertStringContainsString('&lt;b&gt;', Layout::footer());
+        } finally {
+            putenv('APP_VERSION');
+        }
+    }
 }
